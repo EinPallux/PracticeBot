@@ -3,7 +3,7 @@ version: '1.0.0'
 main: com.pallux.practicebot.PracticeBot
 api-version: '1.17'
 author: Pallux
-description: AI PvP Bots for Practice with custom A* pathfinding
+description: AI PvP Bots for Practice
 depend: [Citizens]
 softdepend: []
 

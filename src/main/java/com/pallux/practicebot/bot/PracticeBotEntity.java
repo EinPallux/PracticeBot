@@ -79,20 +79,7 @@ public class PracticeBotEntity {
             // Create NPC
             NPCRegistry registry = CitizensAPI.getNPCRegistry();
             npc = registry.createNPC(EntityType.PLAYER, ColorUtils.stripColor(name));
-
-            // Spawn first
             npc.spawn(spawnLoc);
-
-            // Configure NPC settings for better movement (only use compatible metadata)
-            npc.setProtected(false);
-
-            try {
-                npc.data().set(NPC.Metadata.PATHFINDER_OPEN_DOORS, true);
-                npc.data().set(NPC.Metadata.USE_MINECRAFT_AI, true);
-            } catch (Exception e) {
-                // Metadata not available in this Citizens version
-                plugin.getLogger().warning("Some Citizens metadata not available, bots may have limited AI");
-            }
 
             // Get entity
             if (!(npc.getEntity() instanceof Player)) {
@@ -114,13 +101,6 @@ public class PracticeBotEntity {
             botPlayer.customName(displayName);
             botPlayer.setCustomNameVisible(true);
 
-            // Make bot invulnerable to prevent weird behavior
-            botPlayer.setInvulnerable(false);
-
-            // Set AI to be more responsive
-            botPlayer.setCollidable(true);
-            botPlayer.setGravity(true);
-
             // Apply health multiplier
             double maxHealth = botPlayer.getMaxHealth() * healthMultiplier;
             botPlayer.setMaxHealth(maxHealth);
@@ -128,9 +108,6 @@ public class PracticeBotEntity {
 
             // Initialize AI
             ai = new BotAI(plugin, npc, kitName, area);
-
-            // Initialize AI with bot player
-            ai.initialize(botPlayer);
 
             // Apply AI skill modifiers from bot profile if exists
             applyProfileSkills();
@@ -225,13 +202,9 @@ public class PracticeBotEntity {
                     return;
                 }
 
-                try {
-                    ai.tick();
-                } catch (Exception e) {
-                    plugin.getLogger().warning("Error in bot AI for " + name + ": " + e.getMessage());
-                }
+                ai.tick();
             }
-        }.runTaskTimer(plugin, 5L, tickRate); // Start after 5 ticks to let spawn complete
+        }.runTaskTimer(plugin, 0L, tickRate);
     }
 
     /**

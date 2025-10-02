@@ -232,46 +232,28 @@ public class BotManager implements Listener {
      */
     @EventHandler(priority = EventPriority.NORMAL)
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
-        // Check if damaged entity is a bot
-        if (event.getEntity() instanceof LivingEntity) {
-            LivingEntity damaged = (LivingEntity) event.getEntity();
-
-            if (isBot(damaged)) {
-                PracticeBotEntity bot = getBotFromEntity(damaged);
-
-                // Allow players to damage bots
-                if (event.getDamager() instanceof Player) {
-                    // Players can damage bots normally
-                    return;
-                }
-
-                // Prevent bots from damaging each other
-                if (event.getDamager() instanceof LivingEntity && isBot((LivingEntity) event.getDamager())) {
-                    event.setCancelled(true);
-                    return;
-                }
-            }
-        }
-
         // Check if damager is a bot
         if (event.getDamager() instanceof LivingEntity) {
             LivingEntity damager = (LivingEntity) event.getDamager();
 
             if (isBot(damager)) {
                 PracticeBotEntity bot = getBotFromEntity(damager);
-
-                // Prevent bots from damaging other bots
-                if (event.getEntity() instanceof LivingEntity && isBot((LivingEntity) event.getEntity())) {
-                    event.setCancelled(true);
-                    return;
-                }
-
-                if (bot != null && event.getEntity() instanceof Player) {
-                    // Apply damage multiplier when bot damages player
+                if (bot != null) {
+                    // Apply damage multiplier
                     double originalDamage = event.getDamage();
                     double multiplier = getProfileDamageMultiplier(bot.getKitName());
                     event.setDamage(originalDamage * multiplier);
                 }
+            }
+        }
+
+        // Check if damaged entity is a bot
+        if (event.getEntity() instanceof LivingEntity) {
+            LivingEntity damaged = (LivingEntity) event.getEntity();
+
+            if (isBot(damaged)) {
+                // Prevent bots from being knocked back too much
+                // This helps them maintain combos
             }
         }
     }

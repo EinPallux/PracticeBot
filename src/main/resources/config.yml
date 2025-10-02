@@ -26,8 +26,8 @@ bot-behavior:
   # Distance at which bots will start attacking (in blocks)
   attack-range: 3.5
 
-  # Movement speed multiplier (1.0 = normal player speed, 1.1 = 10% faster)
-  movement-speed: 1.0
+  # Movement speed multiplier (1.0 = normal player speed)
+  movement-speed: 1.1
 
   # How often bots update their target (in ticks, 20 = 1 second)
   target-update-interval: 10
@@ -55,7 +55,7 @@ bot-behavior:
 
   # Bow usage settings
   bow-usage:
-    enabled: false
+    enabled: true
     # Distance at which bots prefer bow over melee
     preferred-range: 10.0
     # Maximum distance for bow shots

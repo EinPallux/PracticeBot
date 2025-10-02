@@ -31,7 +31,6 @@ public class PracticeBot extends JavaPlugin {
         getLogger().info("╔══════════════════════════════════╗");
         getLogger().info("║      PracticeBot v1.0.0          ║");
         getLogger().info("║      Author: Pallux              ║");
-        getLogger().info("║   + Custom A* Pathfinding        ║");
         getLogger().info("╚══════════════════════════════════╝");
 
         // Check for Citizens dependency
@@ -49,7 +48,6 @@ public class PracticeBot extends JavaPlugin {
 
         // Log success
         getLogger().info("PracticeBot has been enabled successfully!");
-        getLogger().info("Using custom A* pathfinding (no external dependencies)");
         getLogger().info("Loaded " + kitManager.getKitNames().size() + " kit(s)");
         getLogger().info("Loaded " + areaManager.getAreas().size() + " practice area(s)");
     }
