@@ -1,0 +1,150 @@
+# PracticeBot Configuration File
+# Supports HEX colors (#RRGGBB) and gradients
+
+# Plugin Settings
+settings:
+  # Prefix for all plugin messages
+  prefix: "<gradient:#FF6B6B:#4ECDC4>PracticeBot</gradient> <gray>»</gray> "
+
+  # Debug mode - prints additional information to console
+  debug: false
+
+  # Maximum number of bots that can be spawned at once
+  max-bots: 50
+
+  # Default spawn amount if not specified
+  default-spawn-amount: 1
+
+# Bot Behavior Settings
+bot-behavior:
+  # Respawn delay after death (in seconds)
+  respawn-delay: 5
+
+  # Maximum distance bots will search for players (in blocks)
+  detection-range: 32.0
+
+  # Distance at which bots will start attacking (in blocks)
+  attack-range: 3.5
+
+  # Movement speed multiplier (1.0 = normal player speed, 1.1 = 10% faster)
+  movement-speed: 1.0
+
+  # How often bots update their target (in ticks, 20 = 1 second)
+  target-update-interval: 10
+
+  # Enable bots to strafe during combat
+  enable-strafing: true
+
+  # Enable bots to block with shields
+  enable-blocking: true
+
+  # Enable bots to use critical hits
+  enable-criticals: true
+
+  # Enable bots to sprint during combat
+  enable-sprinting: true
+
+  # Chance for bot to block an attack (0.0 - 1.0)
+  block-chance: 0.35
+
+  # Chance for bot to perform a critical hit (0.0 - 1.0)
+  critical-chance: 0.45
+
+  # Enable w-tapping (sprint reset for increased knockback)
+  enable-wtap: true
+
+  # Bow usage settings
+  bow-usage:
+    enabled: false
+    # Distance at which bots prefer bow over melee
+    preferred-range: 10.0
+    # Maximum distance for bow shots
+    max-range: 30.0
+    # Accuracy multiplier (1.0 = perfect, 0.5 = 50% accurate)
+    accuracy: 0.85
+
+  # Rod usage for combos
+  rod-usage:
+    enabled: true
+    # Cooldown between rod uses (in ticks)
+    cooldown: 30
+    # Distance for rod usage
+    max-range: 6.0
+
+# Area Settings
+area-settings:
+  # Tool used for selecting area boundaries
+  selection-tool: STONE_AXE
+
+  # Minimum area size (blocks)
+  min-area-size: 10
+
+  # Maximum area size (blocks)
+  max-area-size: 500
+
+  # Show particles when selecting positions
+  show-selection-particles: true
+
+  # Particle type for position 1
+  pos1-particle: VILLAGER_HAPPY
+
+  # Particle type for position 2
+  pos2-particle: FLAME
+
+# Combat Settings
+combat:
+  # Delay between attacks (in ticks, 20 = 1 second)
+  attack-delay: 10
+
+  # Enable bots to combo players
+  enable-combos: true
+
+  # Maximum combo length before bot resets
+  max-combo-length: 8
+
+  # Enable bots to switch to axes when player is blocking
+  smart-weapon-switching: true
+
+  # Health percentage at which bot tries to retreat (0.0 - 1.0)
+  retreat-health-threshold: 0.3
+
+  # Enable bots to eat food when low on health
+  enable-healing: true
+
+  # Health percentage at which bot will try to heal (0.0 - 1.0)
+  heal-threshold: 0.5
+
+# Performance Settings
+performance:
+  # How often to update bot AI (in ticks, lower = more responsive but more CPU usage)
+  ai-tick-rate: 1
+
+  # Maximum pathfinding distance (in blocks)
+  max-pathfinding-distance: 64.0
+
+  # Enable async pathfinding (recommended for better performance)
+  async-pathfinding: true
+
+# Area Tool Messages
+area-tool:
+  # Message when player receives the selection tool
+  receive-message: "<green>Right-click to set Position 1, Left-click to set Position 2"
+
+  # Message format when position is set
+  position-set: "<green>Position {position} set at <yellow>{x}, {y}, {z}</yellow>"
+
+# Default Kit (if no kit specified in bots.yml)
+default-kit: "default"
+
+# Bot Name Format
+bot-name-format: "<gradient:#FF6B6B:#4ECDC4>Practice Bot {number}</gradient>"
+
+# Hologram Settings (above bot's head)
+hologram:
+  enabled: true
+  # Distance in blocks above bot's head
+  height: 0.3
+  # Display health in hologram
+  show-health: true
+  # Format: {name} and {health} placeholders available
+  format: "<gold>{name}</gold>\n<red>❤ {health}</red>"

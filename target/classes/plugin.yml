@@ -1,0 +1,68 @@
+name: PracticeBot
+version: '1.0.0'
+main: com.pallux.practicebot.PracticeBot
+api-version: '1.17'
+author: Pallux
+description: AI PvP Bots for Practice with custom A* pathfinding
+depend: [Citizens]
+softdepend: []
+
+commands:
+  pb:
+    description: Main PracticeBot command
+    usage: /<command> <spawn|despawn|reload|list|setarea|info>
+    aliases: [practicebot, pbot]
+    permission: practicebot.admin
+  pbarea:
+    description: Set practice area boundaries
+    usage: /<command> <pos1|pos2|create|delete|list>
+    aliases: [pbregion, practicebotarea]
+    permission: practicebot.area
+
+permissions:
+  practicebot.*:
+    description: Gives access to all PracticeBot commands
+    default: op
+    children:
+      practicebot.admin: true
+      practicebot.area: true
+      practicebot.spawn: true
+      practicebot.despawn: true
+      practicebot.reload: true
+      practicebot.list: true
+      practicebot.info: true
+
+  practicebot.admin:
+    description: Access to all admin commands
+    default: op
+    children:
+      practicebot.spawn: true
+      practicebot.despawn: true
+      practicebot.reload: true
+      practicebot.list: true
+      practicebot.area: true
+      practicebot.info: true
+
+  practicebot.spawn:
+    description: Allows spawning of practice bots
+    default: op
+
+  practicebot.despawn:
+    description: Allows despawning of practice bots
+    default: op
+
+  practicebot.reload:
+    description: Allows reloading the plugin configuration
+    default: op
+
+  practicebot.list:
+    description: Allows listing active bots
+    default: op
+
+  practicebot.area:
+    description: Allows managing practice areas
+    default: op
+
+  practicebot.info:
+    description: Allows viewing bot information
+    default: op

@@ -1,0 +1,321 @@
+# PracticeBot Kits Configuration
+# Define different equipment loadouts for bots
+# Supported enchantment format: ENCHANTMENT:LEVEL
+# Supported item attributes: damage, attack-speed, etc.
+
+kits:
+  # Default NoDebuff Kit
+  default:
+    armor:
+      helmet:
+        material: DIAMOND_HELMET
+        enchantments:
+          - PROTECTION:4
+          - UNBREAKING:3
+      chestplate:
+        material: DIAMOND_CHESTPLATE
+        enchantments:
+          - PROTECTION:4
+          - UNBREAKING:3
+      leggings:
+        material: DIAMOND_LEGGINGS
+        enchantments:
+          - PROTECTION:4
+          - UNBREAKING:3
+      boots:
+        material: DIAMOND_BOOTS
+        enchantments:
+          - PROTECTION:4
+          - UNBREAKING:3
+          - FEATHER_FALLING:4
+
+    inventory:
+      0:
+        material: DIAMOND_SWORD
+        enchantments:
+          - SHARPNESS:5
+          - UNBREAKING:3
+      1:
+        material: FISHING_ROD
+        enchantments:
+          - UNBREAKING:3
+      2:
+        material: BOW
+        enchantments:
+          - POWER:5
+          - FLAME:1
+          - UNBREAKING:3
+      3:
+        material: GOLDEN_APPLE
+        amount: 64
+      4:
+        material: ENDER_PEARL
+        amount: 16
+      5:
+        material: COOKED_BEEF
+        amount: 64
+      8:
+        material: ARROW
+        amount: 64
+      9:
+        material: SPLASH_POTION
+        potion-type: INSTANT_HEALTH_II
+        amount: 34
+
+    offhand:
+      material: SHIELD
+      enchantments:
+        - UNBREAKING:3
+
+  # Netherite Kit
+  netherite:
+    armor:
+      helmet:
+        material: NETHERITE_HELMET
+        enchantments:
+          - PROTECTION:4
+          - UNBREAKING:3
+          - MENDING:1
+      chestplate:
+        material: NETHERITE_CHESTPLATE
+        enchantments:
+          - PROTECTION:4
+          - UNBREAKING:3
+          - MENDING:1
+      leggings:
+        material: NETHERITE_LEGGINGS
+        enchantments:
+          - PROTECTION:4
+          - UNBREAKING:3
+          - MENDING:1
+      boots:
+        material: NETHERITE_BOOTS
+        enchantments:
+          - PROTECTION:4
+          - UNBREAKING:3
+          - FEATHER_FALLING:4
+          - MENDING:1
+
+    inventory:
+      0:
+        material: NETHERITE_SWORD
+        enchantments:
+          - SHARPNESS:5
+          - UNBREAKING:3
+          - MENDING:1
+      1:
+        material: NETHERITE_AXE
+        enchantments:
+          - SHARPNESS:5
+          - UNBREAKING:3
+      2:
+        material: FISHING_ROD
+        enchantments:
+          - UNBREAKING:3
+      3:
+        material: BOW
+        enchantments:
+          - POWER:5
+          - FLAME:1
+          - UNBREAKING:3
+      4:
+        material: GOLDEN_APPLE
+        amount: 64
+      5:
+        material: ENDER_PEARL
+        amount: 16
+      6:
+        material: COOKED_BEEF
+        amount: 64
+      8:
+        material: ARROW
+        amount: 64
+      9:
+        material: SPLASH_POTION
+        potion-type: INSTANT_HEALTH_II
+        amount: 34
+
+    offhand:
+      material: TOTEM_OF_UNDYING
+
+  # Iron Kit (Easier)
+  iron:
+    armor:
+      helmet:
+        material: IRON_HELMET
+        enchantments:
+          - PROTECTION:2
+          - UNBREAKING:2
+      chestplate:
+        material: IRON_CHESTPLATE
+        enchantments:
+          - PROTECTION:2
+          - UNBREAKING:2
+      leggings:
+        material: IRON_LEGGINGS
+        enchantments:
+          - PROTECTION:2
+          - UNBREAKING:2
+      boots:
+        material: IRON_BOOTS
+        enchantments:
+          - PROTECTION:2
+          - UNBREAKING:2
+
+    inventory:
+      0:
+        material: IRON_SWORD
+        enchantments:
+          - SHARPNESS:3
+          - UNBREAKING:2
+      1:
+        material: FISHING_ROD
+        enchantments:
+          - UNBREAKING:2
+      2:
+        material: BOW
+        enchantments:
+          - POWER:3
+          - UNBREAKING:2
+      3:
+        material: GOLDEN_APPLE
+        amount: 32
+      4:
+        material: COOKED_BEEF
+        amount: 32
+      8:
+        material: ARROW
+        amount: 64
+      9:
+        material: SPLASH_POTION
+        potion-type: INSTANT_HEALTH
+        amount: 16
+
+    offhand:
+      material: SHIELD
+
+  # Crystal PvP Kit
+  crystal:
+    armor:
+      helmet:
+        material: NETHERITE_HELMET
+        enchantments:
+          - PROTECTION:4
+          - UNBREAKING:3
+          - BLAST_PROTECTION:4
+      chestplate:
+        material: NETHERITE_CHESTPLATE
+        enchantments:
+          - PROTECTION:4
+          - UNBREAKING:3
+          - BLAST_PROTECTION:4
+      leggings:
+        material: NETHERITE_LEGGINGS
+        enchantments:
+          - PROTECTION:4
+          - UNBREAKING:3
+          - BLAST_PROTECTION:4
+      boots:
+        material: NETHERITE_BOOTS
+        enchantments:
+          - PROTECTION:4
+          - UNBREAKING:3
+          - FEATHER_FALLING:4
+          - BLAST_PROTECTION:4
+
+    inventory:
+      0:
+        material: NETHERITE_SWORD
+        enchantments:
+          - SHARPNESS:5
+          - UNBREAKING:3
+      1:
+        material: END_CRYSTAL
+        amount: 64
+      2:
+        material: OBSIDIAN
+        amount: 64
+      3:
+        material: RESPAWN_ANCHOR
+        amount: 64
+      4:
+        material: GLOWSTONE
+        amount: 64
+      5:
+        material: GOLDEN_APPLE
+        amount: 64
+      6:
+        material: ENDER_PEARL
+        amount: 16
+      7:
+        material: EXPERIENCE_BOTTLE
+        amount: 64
+      8:
+        material: TOTEM_OF_UNDYING
+        amount: 1
+
+    offhand:
+      material: TOTEM_OF_UNDYING
+
+  # UHC Kit
+  uhc:
+    armor:
+      helmet:
+        material: DIAMOND_HELMET
+        enchantments:
+          - PROTECTION:4
+          - UNBREAKING:3
+      chestplate:
+        material: DIAMOND_CHESTPLATE
+        enchantments:
+          - PROTECTION:4
+          - UNBREAKING:3
+      leggings:
+        material: DIAMOND_LEGGINGS
+        enchantments:
+          - PROTECTION:4
+          - UNBREAKING:3
+      boots:
+        material: DIAMOND_BOOTS
+        enchantments:
+          - PROTECTION:4
+          - FEATHER_FALLING:4
+          - UNBREAKING:3
+
+    inventory:
+      0:
+        material: DIAMOND_SWORD
+        enchantments:
+          - SHARPNESS:5
+          - UNBREAKING:3
+      1:
+        material: BOW
+        enchantments:
+          - POWER:5
+          - INFINITY:1
+          - UNBREAKING:3
+      2:
+        material: FISHING_ROD
+        enchantments:
+          - UNBREAKING:3
+      3:
+        material: LAVA_BUCKET
+        amount: 1
+      4:
+        material: WATER_BUCKET
+        amount: 1
+      5:
+        material: GOLDEN_APPLE
+        amount: 8
+      6:
+        material: COOKED_BEEF
+        amount: 64
+      7:
+        material: COBBLESTONE
+        amount: 64
+      8:
+        material: ARROW
+        amount: 1
+
+    offhand:
+      material: SHIELD

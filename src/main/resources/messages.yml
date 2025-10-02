@@ -1,0 +1,90 @@
+# PracticeBot Messages Configuration
+# Supports HEX colors (#RRGGBB) and gradients
+# Placeholders: {player}, {amount}, {bot}, {kit}, {area}, {x}, {y}, {z}, {number}
+
+# General Messages
+general:
+  no-permission: "<red>You don't have permission to use this command!"
+  player-only: "<red>This command can only be used by players!"
+  invalid-number: "<red>Please provide a valid number!"
+  plugin-reloaded: "<green>PracticeBot has been reloaded successfully!"
+  unknown-command: "<red>Unknown command! Use <yellow>/pb help</yellow> for help."
+
+# Bot Messages
+bots:
+  spawned: "<green>Successfully spawned <yellow>{amount}</yellow> bot(s) with kit <yellow>{kit}</yellow>!"
+  despawned-single: "<green>Bot <yellow>{bot}</yellow> has been despawned!"
+  despawned-all: "<green>All <yellow>{amount}</yellow> bot(s) have been despawned!"
+  no-bots-active: "<red>There are no active bots to despawn!"
+  bot-not-found: "<red>Bot <yellow>{bot}</yellow> not found!"
+  max-bots-reached: "<red>Maximum bot limit reached! <yellow>({amount}/{max})</yellow>"
+  respawning: "<yellow>Bot <gold>{bot}</gold> is respawning..."
+  bot-killed: "<green>You killed <yellow>{bot}</yellow>!"
+
+# Area Messages
+area:
+  no-area-set: "<red>No practice area has been set! Use <yellow>/pbarea create <name></yellow>"
+  position1-set: "<green>Position 1 set at <yellow>{x}, {y}, {z}</yellow>"
+  position2-set: "<green>Position 2 set at <yellow>{x}, {y}, {z}</yellow>"
+  both-positions-required: "<red>Please set both position 1 and position 2 first!"
+  area-created: "<green>Practice area <yellow>{area}</yellow> has been created!"
+  area-deleted: "<green>Practice area <yellow>{area}</yellow> has been deleted!"
+  area-already-exists: "<red>An area with the name <yellow>{area}</yellow> already exists!"
+  area-not-found: "<red>Area <yellow>{area}</yellow> not found!"
+  area-too-small: "<red>Area is too small! Minimum size: <yellow>{min}</yellow> blocks"
+  area-too-large: "<red>Area is too large! Maximum size: <yellow>{max}</yellow> blocks"
+  no-areas: "<red>No practice areas have been created yet!"
+  tool-received: "<green>You received the area selection tool! <yellow>Right-click</yellow> for Position 1, <yellow>Left-click</yellow> for Position 2"
+  invalid-world: "<red>Both positions must be in the same world!"
+
+# Area List
+area-list:
+  header: "<gradient:#FF6B6B:#4ECDC4>╔══════════════════════════════════╗</gradient>\n<gradient:#FF6B6B:#4ECDC4>  Practice Areas</gradient>\n<gradient:#FF6B6B:#4ECDC4>╚══════════════════════════════════╝</gradient>"
+  entry: "<gray>• <yellow>{area}</yellow> <dark_gray>-</dark_gray> <green>{world}</green> <gray>({min_x},{min_y},{min_z} → {max_x},{max_y},{max_z})"
+  footer: "<gray>Total areas: <yellow>{count}</yellow>"
+
+# Bot List
+bot-list:
+  header: "<gradient:#FF6B6B:#4ECDC4>╔══════════════════════════════════╗</gradient>\n<gradient:#FF6B6B:#4ECDC4>  Active Bots</gradient>\n<gradient:#FF6B6B:#4ECDC4>╚══════════════════════════════════╝</gradient>"
+  entry: "<gray>• <yellow>{bot}</yellow> <dark_gray>-</dark_gray> <green>Kit: {kit}</green> <dark_gray>|</dark_gray> <red>Health: {health}/{max_health}</red>"
+  footer: "<gray>Total bots: <yellow>{count}</yellow>"
+
+# Kit Messages
+kits:
+  kit-not-found: "<red>Kit <yellow>{kit}</yellow> not found!"
+  no-kits-available: "<red>No kits are available! Check your kits.yml file."
+  kit-loaded: "<green>Kit <yellow>{kit}</yellow> loaded successfully!"
+
+# Help Message
+help:
+  header: "<gradient:#FF6B6B:#4ECDC4>╔══════════════════════════════════╗</gradient>\n<gradient:#FF6B6B:#4ECDC4>  PracticeBot Commands</gradient>\n<gradient:#FF6B6B:#4ECDC4>╚══════════════════════════════════╝</gradient>"
+  spawn: "<yellow>/pb spawn <amount> [kit]</yellow> <gray>- Spawn practice bots"
+  despawn: "<yellow>/pb despawn <name|all></yellow> <gray>- Despawn bots"
+  list: "<yellow>/pb list</yellow> <gray>- List all active bots"
+  reload: "<yellow>/pb reload</yellow> <gray>- Reload plugin configuration"
+  info: "<yellow>/pb info</yellow> <gray>- Show plugin information"
+  area-tool: "<yellow>/pb setarea</yellow> <gray>- Get area selection tool"
+  area-create: "<yellow>/pbarea create <name></yellow> <gray>- Create practice area"
+  area-delete: "<yellow>/pbarea delete <name></yellow> <gray>- Delete practice area"
+  area-list: "<yellow>/pbarea list</yellow> <gray>- List all practice areas"
+  footer: "<gray>Plugin by <gradient:#FF6B6B:#4ECDC4>Pallux</gradient>"
+
+# Info Message
+info:
+  header: "<gradient:#FF6B6B:#4ECDC4>╔══════════════════════════════════╗</gradient>\n<gradient:#FF6B6B:#4ECDC4>  PracticeBot Info</gradient>\n<gradient:#FF6B6B:#4ECDC4>╚══════════════════════════════════╝</gradient>"
+  version: "<gray>Version: <yellow>{version}</yellow>"
+  author: "<gray>Author: <yellow>{author}</yellow>"
+  active-bots: "<gray>Active Bots: <yellow>{bots}</yellow>"
+  max-bots: "<gray>Max Bots: <yellow>{max}</yellow>"
+  areas: "<gray>Practice Areas: <yellow>{areas}</yellow>"
+  kits: "<gray>Available Kits: <yellow>{kits}</yellow>"
+  footer: "<gray>Thank you for using PracticeBot!"
+
+# Error Messages
+errors:
+  citizens-not-found: "<red>Citizens plugin not found! This plugin requires Citizens to work."
+  area-spawn-failed: "<red>Failed to spawn bot in area <yellow>{area}</yellow>!"
+  bot-spawn-failed: "<red>Failed to spawn bot! Check console for errors."
+  config-load-failed: "<red>Failed to load configuration file: <yellow>{file}</yellow>"
+  invalid-area: "<red>Invalid area configuration!"
+  no-spawn-location: "<red>No valid spawn location found in area!"
