@@ -13,8 +13,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.ThrownPotion;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import java.util.Optional;
@@ -34,6 +32,7 @@ public class BotAI {
     private int retargetCooldown = 0;
     private int rodCooldown = 0;
     private int potionCooldown = 0;
+    private int tridentCooldown = 0;
 
     private Vector movementVector = new Vector(0, 0, 0);
     private boolean wantsToJump = false;
@@ -77,24 +76,21 @@ public class BotAI {
         if (retargetCooldown > 0) retargetCooldown--;
         if (rodCooldown > 0) rodCooldown--;
         if (potionCooldown > 0) potionCooldown--;
+        if (tridentCooldown > 0) tridentCooldown--;
     }
 
     private void checkTotemUsage(Player bot) {
-        // Check if bot is low on health and has a totem
         double healthPercent = bot.getHealth() / bot.getMaxHealth();
 
-        if (healthPercent < 0.3) { // Below 30% health
-            // Check if totem is in offhand
+        if (healthPercent < 0.3) {
             ItemStack offhand = bot.getInventory().getItemInOffHand();
             if (offhand.getType() == Material.TOTEM_OF_UNDYING) {
-                return; // Already equipped
+                return;
             }
 
-            // Search inventory for totem
             for (int i = 0; i < bot.getInventory().getSize(); i++) {
                 ItemStack item = bot.getInventory().getItem(i);
                 if (item != null && item.getType() == Material.TOTEM_OF_UNDYING) {
-                    // Swap totem to offhand
                     ItemStack currentOffhand = bot.getInventory().getItemInOffHand();
                     bot.getInventory().setItemInOffHand(item.clone());
                     bot.getInventory().setItem(i, currentOffhand);
@@ -132,28 +128,36 @@ public class BotAI {
         double attackRange = plugin.getConfigManager().getDouble("bot-behavior.attack-range", 3.5);
         double distance = getDistanceToTarget(bot);
 
-        // Try fishing rod first (if available and in range)
-        if (rodCooldown <= 0 && distance > 3.0 && distance < 10.0) {
-            if (tryFishingRod(bot)) {
-                rodCooldown = plugin.getConfigManager().getInt("combat.rod-cooldown", 60); // 3 seconds
+        if (tridentCooldown <= 0 && distance > 8.0 && distance < 25.0) {
+            if (tryThrowTrident(bot)) {
+                tridentCooldown = plugin.getConfigManager().getInt("combat.trident-cooldown", 80);
             }
         }
 
-        // Try throwing potions (if low health or at medium range)
+        if (rodCooldown <= 0 && distance > 3.0 && distance < 10.0) {
+            if (tryFishingRod(bot)) {
+                rodCooldown = plugin.getConfigManager().getInt("combat.rod-cooldown", 60);
+            }
+        }
+
         if (potionCooldown <= 0 && distance > 2.0 && distance < 15.0) {
             double healthPercent = bot.getHealth() / bot.getMaxHealth();
             double potionChance = plugin.getConfigManager().getDouble("combat.potion-chance", 0.3);
 
-            if (healthPercent < 0.5 || (random.nextDouble() < potionChance && distance > 5.0)) {
-                if (tryThrowPotion(bot)) {
-                    potionCooldown = plugin.getConfigManager().getInt("combat.potion-cooldown", 100); // 5 seconds
+            if (healthPercent < 0.5) {
+                if (tryThrowPotion(bot, true)) {
+                    potionCooldown = plugin.getConfigManager().getInt("combat.potion-cooldown", 100);
+                }
+            } else if (random.nextDouble() < potionChance && distance > 4.0) {
+                if (tryThrowPotion(bot, false)) {
+                    potionCooldown = plugin.getConfigManager().getInt("combat.potion-cooldown", 100);
                 }
             }
         }
 
-        if (distance > attackRange) { // Chasing
+        if (distance > attackRange) {
             movementVector.add(directionToTarget);
-        } else { // Melee Range
+        } else {
             double strafeChance = plugin.getConfigManager().getDouble("combat.strafe-chance", 0.7);
             if (random.nextDouble() < strafeChance) {
                 movementVector.add(new Vector(-directionToTarget.getZ(), 0, directionToTarget.getX()).normalize().multiply(random.nextBoolean() ? 1 : -1));
@@ -168,57 +172,83 @@ public class BotAI {
     }
 
     private boolean tryFishingRod(Player bot) {
-        // Find fishing rod in inventory
         ItemStack rod = findItemInInventory(bot, Material.FISHING_ROD);
         if (rod == null) return false;
 
-        // Switch to rod temporarily
         ItemStack currentItem = bot.getInventory().getItemInMainHand();
         int rodSlot = bot.getInventory().first(Material.FISHING_ROD);
 
         if (rodSlot == -1) return false;
 
-        // Cast the rod toward target
         bot.getInventory().setItemInMainHand(rod);
 
-        // Launch fishing hook
         Vector direction = target.getLocation().toVector().subtract(bot.getLocation().toVector()).normalize();
         bot.launchProjectile(org.bukkit.entity.FishHook.class, direction.multiply(1.5));
 
-        // Switch back to weapon after a short delay
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
             if (bot.isValid() && npc.isSpawned()) {
                 bot.getInventory().setItemInMainHand(currentItem);
             }
-        }, 10L); // Switch back after 0.5 seconds
+        }, 10L);
 
         return true;
     }
 
-    private boolean tryThrowPotion(Player bot) {
-        // Find splash potion in inventory
-        ItemStack potion = findSplashPotion(bot);
+    private boolean tryThrowPotion(Player bot, boolean healing) {
+        ItemStack potion = healing ? findHealingPotion(bot) : findHarmingPotion(bot);
         if (potion == null) return false;
 
-        // Calculate throw direction (aim slightly upward for arc)
-        Vector direction = target.getEyeLocation().toVector()
-                .subtract(bot.getEyeLocation().toVector())
-                .normalize()
-                .multiply(0.75);
-        direction.setY(direction.getY() + 0.2); // Add upward arc
+        Vector direction;
+        if (healing) {
+            direction = new Vector(0, -0.5, 0);
+        } else {
+            direction = target.getEyeLocation().toVector()
+                    .subtract(bot.getEyeLocation().toVector())
+                    .normalize()
+                    .multiply(0.75);
+            direction.setY(direction.getY() + 0.2);
+        }
 
-        // Throw the potion
         ThrownPotion thrownPotion = bot.launchProjectile(ThrownPotion.class, direction);
         thrownPotion.setItem(potion.clone());
 
-        // Remove one potion from inventory
         potion.setAmount(potion.getAmount() - 1);
         if (potion.getAmount() <= 0) {
-            int slot = findPotionSlot(bot);
+            int slot = findPotionSlot(bot, healing);
             if (slot != -1) {
                 bot.getInventory().setItem(slot, null);
             }
         }
+
+        return true;
+    }
+
+    private boolean tryThrowTrident(Player bot) {
+        ItemStack trident = findItemInInventory(bot, Material.TRIDENT);
+        if (trident == null) return false;
+
+        ItemStack currentItem = bot.getInventory().getItemInMainHand();
+        int tridentSlot = bot.getInventory().first(Material.TRIDENT);
+
+        if (tridentSlot == -1) return false;
+
+        bot.getInventory().setItemInMainHand(trident);
+
+        Vector direction = target.getEyeLocation().toVector()
+                .subtract(bot.getEyeLocation().toVector())
+                .normalize()
+                .multiply(2.0);
+
+        org.bukkit.entity.Trident thrown = bot.launchProjectile(org.bukkit.entity.Trident.class, direction);
+        thrown.setPickupStatus(org.bukkit.entity.AbstractArrow.PickupStatus.CREATIVE_ONLY);
+
+        bot.getInventory().setItem(tridentSlot, null);
+
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            if (bot.isValid() && npc.isSpawned()) {
+                bot.getInventory().setItemInMainHand(currentItem);
+            }
+        }, 5L);
 
         return true;
     }
@@ -232,20 +262,51 @@ public class BotAI {
         return null;
     }
 
-    private ItemStack findSplashPotion(Player bot) {
+    private ItemStack findHealingPotion(Player bot) {
         for (ItemStack item : bot.getInventory().getContents()) {
             if (item != null && (item.getType() == Material.SPLASH_POTION || item.getType() == Material.LINGERING_POTION)) {
-                return item;
+                if (item.hasItemMeta() && item.getItemMeta() instanceof PotionMeta) {
+                    PotionMeta meta = (PotionMeta) item.getItemMeta();
+                    if (meta.getBasePotionData().getType().name().contains("HEAL") ||
+                            meta.getBasePotionData().getType().name().contains("REGEN")) {
+                        return item;
+                    }
+                }
             }
         }
         return null;
     }
 
-    private int findPotionSlot(Player bot) {
+    private ItemStack findHarmingPotion(Player bot) {
+        for (ItemStack item : bot.getInventory().getContents()) {
+            if (item != null && (item.getType() == Material.SPLASH_POTION || item.getType() == Material.LINGERING_POTION)) {
+                if (item.hasItemMeta() && item.getItemMeta() instanceof PotionMeta) {
+                    PotionMeta meta = (PotionMeta) item.getItemMeta();
+                    if (meta.getBasePotionData().getType().name().contains("HARM") ||
+                            meta.getBasePotionData().getType().name().contains("POISON") ||
+                            meta.getBasePotionData().getType().name().contains("WEAKNESS") ||
+                            meta.getBasePotionData().getType().name().contains("SLOW")) {
+                        return item;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private int findPotionSlot(Player bot, boolean healing) {
         for (int i = 0; i < bot.getInventory().getSize(); i++) {
             ItemStack item = bot.getInventory().getItem(i);
             if (item != null && (item.getType() == Material.SPLASH_POTION || item.getType() == Material.LINGERING_POTION)) {
-                return i;
+                if (item.hasItemMeta() && item.getItemMeta() instanceof PotionMeta) {
+                    PotionMeta meta = (PotionMeta) item.getItemMeta();
+                    String type = meta.getBasePotionData().getType().name();
+                    if (healing && (type.contains("HEAL") || type.contains("REGEN"))) {
+                        return i;
+                    } else if (!healing && (type.contains("HARM") || type.contains("POISON") || type.contains("WEAKNESS") || type.contains("SLOW"))) {
+                        return i;
+                    }
+                }
             }
         }
         return -1;
@@ -280,32 +341,26 @@ public class BotAI {
 
     private void updateTarget(Player bot) {
         if (retargetCooldown > 0) return;
-        retargetCooldown = 20; // Re-evaluate target every second
+        retargetCooldown = 20;
 
-        // Invalidate current target if it's dead, gone, or too far
         if (target != null && (target.isDead() || !target.isValid() || getDistanceToTarget(bot) > 32)) {
             botManager.releaseTarget(npc.getUniqueId());
             target = null;
         }
 
-        // Step 1: ALWAYS search for an available player target.
         Optional<Player> bestPlayerTarget = findValidPlayerTarget(bot);
 
         if (bestPlayerTarget.isPresent()) {
-            // If we found a player and we're not already targeting them, SWITCH.
             if (!bestPlayerTarget.get().equals(target)) {
                 forceTarget(bestPlayerTarget.get());
             }
-            return; // Lock onto the player and do nothing else this cycle.
+            return;
         }
 
-        // Step 2: If we reach here, NO players are available to be targeted.
-        // If we are currently fighting another bot, we can continue.
         if (target != null && target.hasMetadata("NPC")) {
             return;
         }
 
-        // Step 3: If we reach here, we are idle. Look for a bot to fight.
         if (plugin.getConfigManager().getBoolean("combat.bot-vs-bot.enabled", true)) {
             findValidBotTarget(bot).ifPresent(this::forceTarget);
         }
@@ -334,7 +389,7 @@ public class BotAI {
     public void forceTarget(LivingEntity newTarget) {
         botManager.claimTarget(npc.getUniqueId(), newTarget);
         this.target = newTarget;
-        this.retargetCooldown = 100; // Force focus for 5 seconds
+        this.retargetCooldown = 100;
     }
 
     public LivingEntity getTarget() {

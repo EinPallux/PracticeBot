@@ -34,6 +34,10 @@ combat:
   # Cooldown in ticks between potion throws (100 = 5 seconds)
   potion-cooldown: 100
 
+  # Trident Settings
+  # Cooldown in ticks between trident throws (80 = 4 seconds)
+  trident-cooldown: 80
+
   # Bot vs. Bot Combat Settings
   bot-vs-bot:
     # If true, bots will fight each other if no players are available to target.

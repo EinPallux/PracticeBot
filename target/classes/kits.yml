@@ -1,16 +1,34 @@
 # =================================================================== #
 #                        PracticeBot Kits                             #
 # =================================================================== #
-# Define different equipment loadouts for bots.
-# When a bot spawns, it will be given one of these kits at random.
-#
-# Format:
-# ENCHANTMENT must be a valid Bukkit Enchantment name: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/enchantments/Enchantment.html
-# MATERIAL must be a valid Bukkit Material name: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html
+# A huge variety of kits for different combat styles! (You can always add more or remove kits)
+# Bots will randomly choose from these kits.
 
 kits:
-  # A basic iron set for easier bots.
-  iron:
+  # ==================== BASIC KITS ====================
+
+  leather_warrior:
+    armor:
+      helmet:
+        material: LEATHER_HELMET
+      chestplate:
+        material: LEATHER_CHESTPLATE
+      leggings:
+        material: LEATHER_LEGGINGS
+      boots:
+        material: LEATHER_BOOTS
+    inventory:
+      0:
+        material: WOODEN_SWORD
+      1:
+        material: BOW
+      2:
+        material: ARROW
+        amount: 32
+      3:
+        material: WOODEN_AXE
+
+  iron_knight:
     armor:
       helmet:
         material: IRON_HELMET
@@ -24,23 +42,96 @@ kits:
       0:
         material: IRON_SWORD
         enchantments:
-          - DAMAGE_ALL:1 # Sharpness 1
+          - DAMAGE_ALL:1
       1:
-        material: BOW
-      2:
         material: FISHING_ROD
+      2:
+        material: SPLASH_POTION
+        amount: 2
+        potion-type: INSTANT_HEAL
       3:
+        material: COOKED_BEEF
+        amount: 16
+
+  chain_duelist:
+    armor:
+      helmet:
+        material: CHAINMAIL_HELMET
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:1
+      chestplate:
+        material: CHAINMAIL_CHESTPLATE
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:1
+      leggings:
+        material: CHAINMAIL_LEGGINGS
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:1
+      boots:
+        material: CHAINMAIL_BOOTS
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:1
+          - PROTECTION_FALL:2
+    inventory:
+      0:
+        material: IRON_SWORD
+        enchantments:
+          - DAMAGE_ALL:2
+      1:
+        material: SHIELD
+      2:
         material: SPLASH_POTION
         amount: 3
         potion-type: INSTANT_HEAL
 
-  # Standard diamond PvP kit.
-  diamond:
+  # ==================== DIAMOND KITS ====================
+
+  diamond_warrior:
     armor:
       helmet:
         material: DIAMOND_HELMET
         enchantments:
-          - PROTECTION_ENVIRONMENTAL:2 # Protection 2
+          - PROTECTION_ENVIRONMENTAL:3
+      chestplate:
+        material: DIAMOND_CHESTPLATE
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:3
+      leggings:
+        material: DIAMOND_LEGGINGS
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:3
+      boots:
+        material: DIAMOND_BOOTS
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:3
+    inventory:
+      0:
+        material: DIAMOND_SWORD
+        enchantments:
+          - DAMAGE_ALL:4
+      1:
+        material: FISHING_ROD
+      2:
+        material: BOW
+        enchantments:
+          - ARROW_DAMAGE:3
+      3:
+        material: ARROW
+        amount: 64
+      4:
+        material: SPLASH_POTION
+        amount: 4
+        potion-type: INSTANT_HEAL_II
+      5:
+        material: TOTEM_OF_UNDYING
+
+  diamond_archer:
+    armor:
+      helmet:
+        material: DIAMOND_HELMET
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:2
+          - PROTECTION_PROJECTILE:4
       chestplate:
         material: DIAMOND_CHESTPLATE
         enchantments:
@@ -57,31 +148,122 @@ kits:
       0:
         material: DIAMOND_SWORD
         enchantments:
-          - DAMAGE_ALL:3 # Sharpness 3
+          - DAMAGE_ALL:3
       1:
         material: BOW
         enchantments:
-          - ARROW_DAMAGE:1 # Power 1
+          - ARROW_DAMAGE:5
+          - ARROW_FIRE:1
+          - ARROW_KNOCKBACK:2
+      2:
+        material: ARROW
+        amount: 128
+      3:
+        material: SPLASH_POTION
+        amount: 3
+        potion-type: SPEED
+      4:
+        material: TOTEM_OF_UNDYING
+
+  trident_master:
+    armor:
+      helmet:
+        material: DIAMOND_HELMET
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:3
+          - RESPIRATION:3
+      chestplate:
+        material: DIAMOND_CHESTPLATE
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:3
+      leggings:
+        material: DIAMOND_LEGGINGS
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:3
+      boots:
+        material: DIAMOND_BOOTS
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:3
+          - DEPTH_STRIDER:3
+    inventory:
+      0:
+        material: TRIDENT
+        amount: 3
+        enchantments:
+          - IMPALING:4
+          - LOYALTY:3
+      1:
+        material: DIAMOND_SWORD
+        enchantments:
+          - DAMAGE_ALL:3
       2:
         material: FISHING_ROD
       3:
         material: SPLASH_POTION
-        amount: 4
+        amount: 5
         potion-type: INSTANT_HEAL_II
       4:
-        material: SPLASH_POTION
-        amount: 2
-        potion-type: SPEED
-      5:
         material: TOTEM_OF_UNDYING
 
-  # A powerful netherite kit for the strongest bots.
-  netherite:
+  alchemist:
+    armor:
+      helmet:
+        material: DIAMOND_HELMET
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:3
+      chestplate:
+        material: DIAMOND_CHESTPLATE
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:3
+      leggings:
+        material: DIAMOND_LEGGINGS
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:3
+      boots:
+        material: DIAMOND_BOOTS
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:3
+    inventory:
+      0:
+        material: DIAMOND_SWORD
+        enchantments:
+          - DAMAGE_ALL:3
+      1:
+        material: SPLASH_POTION
+        amount: 6
+        potion-type: INSTANT_HEAL_II
+      2:
+        material: SPLASH_POTION
+        amount: 4
+        potion-type: INSTANT_DAMAGE_II
+      3:
+        material: SPLASH_POTION
+        amount: 3
+        potion-type: POISON
+      4:
+        material: SPLASH_POTION
+        amount: 3
+        potion-type: WEAKNESS
+      5:
+        material: SPLASH_POTION
+        amount: 2
+        potion-type: SLOWNESS
+      6:
+        material: SPLASH_POTION
+        amount: 3
+        potion-type: SPEED
+      7:
+        material: TOTEM_OF_UNDYING
+        amount: 2
+
+  # ==================== NETHERITE KITS ====================
+
+  netherite_warrior:
     armor:
       helmet:
         material: NETHERITE_HELMET
         enchantments:
-          - PROTECTION_ENVIRONMENTAL:4 # Protection 4
+          - PROTECTION_ENVIRONMENTAL:4
       chestplate:
         material: NETHERITE_CHESTPLATE
         enchantments:
@@ -98,7 +280,8 @@ kits:
       0:
         material: NETHERITE_SWORD
         enchantments:
-          - DAMAGE_ALL:5 # Sharpness 5
+          - DAMAGE_ALL:5
+          - FIRE_ASPECT:2
       1:
         material: FISHING_ROD
       2:
@@ -107,14 +290,563 @@ kits:
         potion-type: INSTANT_HEAL_II
       3:
         material: SPLASH_POTION
-        amount: 3
-        potion-type: SPEED_II
+        amount: 4
+        potion-type: INSTANT_DAMAGE_II
       4:
         material: SPLASH_POTION
-        amount: 2
+        amount: 3
         potion-type: STRENGTH
       5:
         material: TOTEM_OF_UNDYING
         amount: 2
+    offhand:
+      material: TOTEM_OF_UNDYING
+
+  netherite_tank:
+    armor:
+      helmet:
+        material: NETHERITE_HELMET
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:4
+          - PROTECTION_BLAST:4
+      chestplate:
+        material: NETHERITE_CHESTPLATE
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:4
+          - PROTECTION_BLAST:4
+      leggings:
+        material: NETHERITE_LEGGINGS
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:4
+          - PROTECTION_BLAST:4
+      boots:
+        material: NETHERITE_BOOTS
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:4
+          - PROTECTION_BLAST:4
+    inventory:
+      0:
+        material: NETHERITE_SWORD
+        enchantments:
+          - DAMAGE_ALL:5
+          - KNOCKBACK:2
+      1:
+        material: SHIELD
+      2:
+        material: SPLASH_POTION
+        amount: 8
+        potion-type: INSTANT_HEAL_II
+      3:
+        material: SPLASH_POTION
+        amount: 4
+        potion-type: STRENGTH
+      4:
+        material: SPLASH_POTION
+        amount: 3
+        potion-type: TURTLE_MASTER
+      5:
+        material: TOTEM_OF_UNDYING
+        amount: 3
+      6:
+        material: GOLDEN_APPLE
+        amount: 16
+    offhand:
+      material: TOTEM_OF_UNDYING
+
+  netherite_assassin:
+    armor:
+      helmet:
+        material: NETHERITE_HELMET
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:4
+      chestplate:
+        material: NETHERITE_CHESTPLATE
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:4
+      leggings:
+        material: NETHERITE_LEGGINGS
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:4
+      boots:
+        material: NETHERITE_BOOTS
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:4
+          - SOUL_SPEED:3
+    inventory:
+      0:
+        material: NETHERITE_SWORD
+        enchantments:
+          - DAMAGE_ALL:5
+          - SWEEPING_EDGE:3
+      1:
+        material: FISHING_ROD
+      2:
+        material: SPLASH_POTION
+        amount: 5
+        potion-type: INSTANT_HEAL_II
+      3:
+        material: SPLASH_POTION
+        amount: 6
+        potion-type: INSTANT_DAMAGE_II
+      4:
+        material: SPLASH_POTION
+        amount: 4
+        potion-type: SPEED
+      5:
+        material: SPLASH_POTION
+        amount: 3
+        potion-type: STRENGTH
+      6:
+        material: TOTEM_OF_UNDYING
+        amount: 2
+
+  # ==================== SPECIALIZED KITS ====================
+
+  berserker:
+    armor:
+      helmet:
+        material: NETHERITE_HELMET
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:4
+      chestplate:
+        material: NETHERITE_CHESTPLATE
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:4
+      leggings:
+        material: NETHERITE_LEGGINGS
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:4
+      boots:
+        material: NETHERITE_BOOTS
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:4
+    inventory:
+      0:
+        material: NETHERITE_AXE
+        enchantments:
+          - DAMAGE_ALL:5
+          - DAMAGE_ARTHROPODS:5
+      1:
+        material: SHIELD
+      2:
+        material: SPLASH_POTION
+        amount: 8
+        potion-type: INSTANT_HEAL_II
+      3:
+        material: SPLASH_POTION
+        amount: 6
+        potion-type: STRENGTH
+      4:
+        material: TOTEM_OF_UNDYING
+        amount: 2
+    offhand:
+      material: TOTEM_OF_UNDYING
+
+  crossbow_sniper:
+    armor:
+      helmet:
+        material: NETHERITE_HELMET
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:3
+          - PROTECTION_PROJECTILE:4
+      chestplate:
+        material: NETHERITE_CHESTPLATE
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:3
+      leggings:
+        material: NETHERITE_LEGGINGS
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:3
+      boots:
+        material: NETHERITE_BOOTS
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:3
+    inventory:
+      0:
+        material: NETHERITE_SWORD
+        enchantments:
+          - DAMAGE_ALL:5
+      1:
+        material: CROSSBOW
+        enchantments:
+          - QUICK_CHARGE:3
+          - PIERCING:4
+      2:
+        material: ARROW
+        amount: 256
+      3:
+        material: SPLASH_POTION
+        amount: 4
+        potion-type: INSTANT_HEAL_II
+      4:
+        material: SPLASH_POTION
+        amount: 3
+        potion-type: SPEED
+      5:
+        material: TOTEM_OF_UNDYING
+
+  crystal_pvper:
+    armor:
+      helmet:
+        material: NETHERITE_HELMET
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:4
+          - PROTECTION_BLAST:4
+      chestplate:
+        material: NETHERITE_CHESTPLATE
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:4
+          - PROTECTION_BLAST:4
+      leggings:
+        material: NETHERITE_LEGGINGS
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:4
+          - PROTECTION_BLAST:4
+      boots:
+        material: NETHERITE_BOOTS
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:4
+          - PROTECTION_BLAST:4
+    inventory:
+      0:
+        material: NETHERITE_SWORD
+        enchantments:
+          - DAMAGE_ALL:5
+      1:
+        material: END_CRYSTAL
+        amount: 64
+      2:
+        material: OBSIDIAN
+        amount: 64
+      3:
+        material: SPLASH_POTION
+        amount: 8
+        potion-type: INSTANT_HEAL_II
+      4:
+        material: SPLASH_POTION
+        amount: 4
+        potion-type: STRENGTH
+      5:
+        material: TOTEM_OF_UNDYING
+        amount: 3
+    offhand:
+      material: TOTEM_OF_UNDYING
+
+  uhc_fighter:
+    armor:
+      helmet:
+        material: DIAMOND_HELMET
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:4
+      chestplate:
+        material: DIAMOND_CHESTPLATE
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:4
+      leggings:
+        material: DIAMOND_LEGGINGS
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:4
+      boots:
+        material: DIAMOND_BOOTS
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:4
+          - PROTECTION_FALL:4
+    inventory:
+      0:
+        material: DIAMOND_SWORD
+        enchantments:
+          - DAMAGE_ALL:5
+      1:
+        material: BOW
+        enchantments:
+          - ARROW_DAMAGE:5
+          - ARROW_INFINITE:1
+      2:
+        material: ARROW
+      3:
+        material: FISHING_ROD
+      4:
+        material: LAVA_BUCKET
+      5:
+        material: WATER_BUCKET
+      6:
+        material: COBWEB
+        amount: 8
+      7:
+        material: GOLDEN_APPLE
+        amount: 8
+      8:
+        material: SPLASH_POTION
+        amount: 4
+        potion-type: INSTANT_HEAL_II
+
+  ninja:
+    armor:
+      helmet:
+        material: DIAMOND_HELMET
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:3
+      chestplate:
+        material: ELYTRA
+      leggings:
+        material: DIAMOND_LEGGINGS
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:3
+      boots:
+        material: DIAMOND_BOOTS
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:3
+          - SOUL_SPEED:3
+          - PROTECTION_FALL:4
+    inventory:
+      0:
+        material: DIAMOND_SWORD
+        enchantments:
+          - DAMAGE_ALL:4
+      1:
+        material: ENDER_PEARL
+        amount: 16
+      2:
+        material: FISHING_ROD
+      3:
+        material: FIREWORK_ROCKET
+        amount: 32
+      4:
+        material: SPLASH_POTION
+        amount: 5
+        potion-type: INSTANT_HEAL_II
+      5:
+        material: SPLASH_POTION
+        amount: 4
+        potion-type: SPEED
+      6:
+        material: SPLASH_POTION
+        amount: 3
+        potion-type: INVISIBILITY
+      7:
+        material: TOTEM_OF_UNDYING
+
+  debuffer:
+    armor:
+      helmet:
+        material: NETHERITE_HELMET
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:4
+      chestplate:
+        material: NETHERITE_CHESTPLATE
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:4
+      leggings:
+        material: NETHERITE_LEGGINGS
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:4
+      boots:
+        material: NETHERITE_BOOTS
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:4
+    inventory:
+      0:
+        material: NETHERITE_SWORD
+        enchantments:
+          - DAMAGE_ALL:4
+      1:
+        material: SPLASH_POTION
+        amount: 8
+        potion-type: INSTANT_DAMAGE_II
+      2:
+        material: SPLASH_POTION
+        amount: 6
+        potion-type: POISON
+      3:
+        material: SPLASH_POTION
+        amount: 6
+        potion-type: WEAKNESS
+      4:
+        material: SPLASH_POTION
+        amount: 6
+        potion-type: SLOWNESS
+      5:
+        material: SPLASH_POTION
+        amount: 5
+        potion-type: INSTANT_HEAL_II
+      6:
+        material: FISHING_ROD
+      7:
+        material: TOTEM_OF_UNDYING
+        amount: 2
+
+  demolisher:
+    armor:
+      helmet:
+        material: NETHERITE_HELMET
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:4
+          - PROTECTION_BLAST:4
+      chestplate:
+        material: NETHERITE_CHESTPLATE
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:4
+          - PROTECTION_BLAST:4
+      leggings:
+        material: NETHERITE_LEGGINGS
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:4
+          - PROTECTION_BLAST:4
+      boots:
+        material: NETHERITE_BOOTS
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:4
+          - PROTECTION_BLAST:4
+    inventory:
+      0:
+        material: NETHERITE_SWORD
+        enchantments:
+          - DAMAGE_ALL:5
+      1:
+        material: TNT
+        amount: 16
+      2:
+        material: FLINT_AND_STEEL
+      3:
+        material: SPLASH_POTION
+        amount: 6
+        potion-type: INSTANT_HEAL_II
+      4:
+        material: SPLASH_POTION
+        amount: 3
+        potion-type: FIRE_RESISTANCE
+      5:
+        material: TOTEM_OF_UNDYING
+        amount: 2
+    offhand:
+      material: TOTEM_OF_UNDYING
+
+  poseidon:
+    armor:
+      helmet:
+        material: NETHERITE_HELMET
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:4
+          - RESPIRATION:3
+          - AQUA_AFFINITY:1
+      chestplate:
+        material: NETHERITE_CHESTPLATE
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:4
+      leggings:
+        material: NETHERITE_LEGGINGS
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:4
+      boots:
+        material: NETHERITE_BOOTS
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:4
+          - DEPTH_STRIDER:3
+    inventory:
+      0:
+        material: TRIDENT
+        amount: 5
+        enchantments:
+          - IMPALING:5
+          - LOYALTY:3
+          - RIPTIDE:3
+      1:
+        material: NETHERITE_SWORD
+        enchantments:
+          - DAMAGE_ALL:5
+      2:
+        material: SPLASH_POTION
+        amount: 8
+        potion-type: INSTANT_HEAL_II
+      3:
+        material: SPLASH_POTION
+        amount: 4
+        potion-type: INSTANT_DAMAGE_II
+      4:
+        material: SPLASH_POTION
+        amount: 3
+        potion-type: WATER_BREATHING
+      5:
+        material: TOTEM_OF_UNDYING
+        amount: 2
+
+  god_tier:
+    armor:
+      helmet:
+        material: NETHERITE_HELMET
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:4
+          - PROTECTION_BLAST:4
+          - PROTECTION_PROJECTILE:4
+          - RESPIRATION:3
+          - AQUA_AFFINITY:1
+      chestplate:
+        material: NETHERITE_CHESTPLATE
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:4
+          - PROTECTION_BLAST:4
+          - PROTECTION_PROJECTILE:4
+      leggings:
+        material: NETHERITE_LEGGINGS
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:4
+          - PROTECTION_BLAST:4
+          - PROTECTION_PROJECTILE:4
+      boots:
+        material: NETHERITE_BOOTS
+        enchantments:
+          - PROTECTION_ENVIRONMENTAL:4
+          - PROTECTION_BLAST:4
+          - PROTECTION_PROJECTILE:4
+          - PROTECTION_FALL:4
+          - SOUL_SPEED:3
+          - DEPTH_STRIDER:3
+    inventory:
+      0:
+        material: NETHERITE_SWORD
+        enchantments:
+          - DAMAGE_ALL:5
+          - FIRE_ASPECT:2
+          - KNOCKBACK:2
+          - SWEEPING_EDGE:3
+          - MENDING:1
+      1:
+        material: BOW
+        enchantments:
+          - ARROW_DAMAGE:5
+          - ARROW_FIRE:1
+          - ARROW_INFINITE:1
+          - MENDING:1
+      2:
+        material: ARROW
+      3:
+        material: FISHING_ROD
+        enchantments:
+          - MENDING:1
+      4:
+        material: SPLASH_POTION
+        amount: 16
+        potion-type: INSTANT_HEAL_II
+      5:
+        material: SPLASH_POTION
+        amount: 8
+        potion-type: INSTANT_DAMAGE_II
+      6:
+        material: SPLASH_POTION
+        amount: 6
+        potion-type: STRENGTH
+      7:
+        material: SPLASH_POTION
+        amount: 6
+        potion-type: SPEED
+      8:
+        material: TOTEM_OF_UNDYING
+        amount: 3
+      9:
+        material: GOLDEN_APPLE
+        amount: 32
+      10:
+        material: ENDER_PEARL
+        amount: 16
     offhand:
       material: TOTEM_OF_UNDYING
