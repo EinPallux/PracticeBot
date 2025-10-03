@@ -2,7 +2,6 @@ package com.pallux.practicebot.commands;
 
 import com.pallux.practicebot.PracticeBot;
 import com.pallux.practicebot.managers.AreaManager;
-import com.pallux.practicebot.utils.MessageUtils;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -166,8 +165,8 @@ public class AreaCommand implements CommandExecutor, TabCompleter, Listener {
     private void handleReload(CommandSender sender) {
         plugin.getConfigManager().reloadAll();
         plugin.getKitManager().loadKits();
-        plugin.getAreaManager().shutdown();
-        plugin.getAreaManager().loadAreas();
+        plugin.getAreaManager().reload();
+        plugin.getMessageUtils().reload();
         plugin.getMessageUtils().sendMessage(sender, "general.plugin-reloaded");
     }
 

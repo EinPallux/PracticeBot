@@ -11,6 +11,10 @@ import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.trait.TraitInfo;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PracticeBot extends JavaPlugin {
 
@@ -31,11 +35,24 @@ public class PracticeBot extends JavaPlugin {
         // Register our custom trait with Citizens
         CitizensAPI.getTraitFactory().registerTrait(TraitInfo.create(PracticeBotTrait.class).withName("practicebottrait"));
 
-        // --- NEW: Run cleanup BEFORE initializing managers ---
-        cleanupOldBots();
-
+        // Initialize managers first (but don't start area spawning yet)
         initializeManagers();
         registerCommands();
+
+        // Delay cleanup and then start area management
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                getLogger().info("Running cleanup of leftover NPCs...");
+                cleanupOldBots();
+
+                // After cleanup, start the area management
+                if (areaManager != null) {
+                    getLogger().info("Starting area management...");
+                    areaManager.startManagement();
+                }
+            }
+        }.runTaskLater(this, 60L); // Wait 3 seconds
 
         getLogger().info("PracticeBot has been enabled successfully!");
     }
@@ -46,21 +63,51 @@ public class PracticeBot extends JavaPlugin {
             getLogger().info("Despawning all PracticeBot NPCs...");
             areaManager.shutdown();
         }
+
+        // Final cleanup on disable
+        cleanupOldBots();
+
         getLogger().info("PracticeBot has been disabled!");
     }
 
     private void cleanupOldBots() {
         getLogger().info("Scanning for and removing any leftover PracticeBot NPCs...");
         int count = 0;
-        // Iterate through a copy to avoid modification issues
-        for (NPC npc : CitizensAPI.getNPCRegistry()) {
-            if (npc.hasTrait(PracticeBotTrait.class)) {
-                npc.destroy();
-                count++;
+
+        List<NPC> botsToRemove = new ArrayList<>();
+
+        try {
+            if (CitizensAPI.getNPCRegistry() == null) {
+                getLogger().warning("Citizens registry not ready yet!");
+                return;
             }
-        }
-        if (count > 0) {
-            getLogger().info("Removed " + count + " leftover PracticeBot NPCs.");
+
+            for (NPC npc : CitizensAPI.getNPCRegistry()) {
+                if (npc != null && npc.hasTrait(PracticeBotTrait.class)) {
+                    botsToRemove.add(npc);
+                }
+            }
+
+            for (NPC npc : botsToRemove) {
+                try {
+                    if (npc.isSpawned()) {
+                        npc.despawn();
+                    }
+                    npc.destroy();
+                    count++;
+                } catch (Exception e) {
+                    getLogger().warning("Failed to remove NPC " + npc.getId() + ": " + e.getMessage());
+                }
+            }
+
+            if (count > 0) {
+                getLogger().info("Removed " + count + " leftover PracticeBot NPCs.");
+            } else {
+                getLogger().info("No leftover PracticeBot NPCs found.");
+            }
+        } catch (Exception e) {
+            getLogger().severe("Error during bot cleanup: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -92,7 +139,6 @@ public class PracticeBot extends JavaPlugin {
         getCommand("pbarea").setTabCompleter(areaCommand);
     }
 
-    // Getters
     public ConfigManager getConfigManager() { return configManager; }
     public MessageUtils getMessageUtils() { return messageUtils; }
     public AreaManager getAreaManager() { return areaManager; }

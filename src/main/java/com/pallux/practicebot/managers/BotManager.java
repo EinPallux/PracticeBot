@@ -26,7 +26,9 @@ public class BotManager implements Listener {
     }
 
     public void addBot(PracticeBotEntity bot) {
-        allBots.add(bot);
+        if (bot != null) {
+            allBots.add(bot);
+        }
     }
 
     public void removeBot(PracticeBotEntity bot) {
@@ -37,16 +39,67 @@ public class BotManager implements Listener {
 
     public PracticeBotEntity getBotFromEntity(LivingEntity entity) {
         if (entity == null || !entity.hasMetadata("NPC")) return null;
-        for (PracticeBotEntity bot : allBots) {
-            if (bot.getNpc() != null && bot.getNpc().getEntity() != null && bot.getNpc().getEntity().getUniqueId().equals(entity.getUniqueId())) {
-                return bot;
+        synchronized (allBots) {
+            for (PracticeBotEntity bot : allBots) {
+                if (bot.getNpc() != null && bot.getNpc().getEntity() != null &&
+                        bot.getNpc().getEntity().getUniqueId().equals(entity.getUniqueId())) {
+                    return bot;
+                }
             }
         }
         return null;
     }
 
     public Set<PracticeBotEntity> getAllBots() {
-        return allBots;
+        return new HashSet<>(allBots);
+    }
+
+    public int getActiveBotCount() {
+        return allBots.size();
+    }
+
+    public Collection<PracticeBotEntity> getActiveBots() {
+        return new ArrayList<>(allBots);
+    }
+
+    public Set<String> getBotNames() {
+        Set<String> names = new HashSet<>();
+        synchronized (allBots) {
+            for (PracticeBotEntity bot : allBots) {
+                if (bot.getName() != null) {
+                    names.add(bot.getName());
+                }
+            }
+        }
+        return names;
+    }
+
+    public boolean despawnBot(String name) {
+        synchronized (allBots) {
+            for (PracticeBotEntity bot : allBots) {
+                if (bot.getName() != null && bot.getName().equalsIgnoreCase(name)) {
+                    removeBot(bot);
+                    bot.despawn();
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public int despawnAll() {
+        int count = 0;
+        synchronized (allBots) {
+            Iterator<PracticeBotEntity> iterator = allBots.iterator();
+            while (iterator.hasNext()) {
+                PracticeBotEntity bot = iterator.next();
+                bot.despawn();
+                iterator.remove();
+                count++;
+            }
+        }
+        targeterMap.clear();
+        return count;
     }
 
     public boolean isTargetSlotAvailable(LivingEntity target) {
@@ -79,11 +132,13 @@ public class BotManager implements Listener {
 
         if (!(event.getDamager() instanceof LivingEntity attacker)) return;
 
-        if (bot.getAi().getTarget() != null && bot.getAi().getTarget().equals(attacker)) {
+        if (bot.getAi() != null && bot.getAi().getTarget() != null && bot.getAi().getTarget().equals(attacker)) {
             return;
         }
 
-        bot.getAi().forceTarget(attacker);
+        if (bot.getAi() != null) {
+            bot.getAi().forceTarget(attacker);
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

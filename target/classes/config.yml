@@ -5,8 +5,6 @@
 # General plugin settings
 settings:
   prefix: "<gradient:#FF6B6B:#4ECDC4>PracticeBot</gradient> <gray>»</gray> "
-  # The absolute maximum number of bots that can be active on the server at once.
-  max-bots: 50
 
 # --- Bot AI and Behavior ---
 bot-behavior:
@@ -52,7 +50,8 @@ performance:
 area-settings:
   selection-tool: STONE_AXE
 
-bot-name-format: "Practice Bot {number}"
+# Bot name without numbers - just "Practice Bot"
+bot-name-format: "Practice Bot"
 
 hologram:
   enabled: true

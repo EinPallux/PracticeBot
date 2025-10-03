@@ -29,12 +29,12 @@ public class PracticeBotEntity {
     private BukkitTask hologramTask;
     private boolean isDead = false;
 
-    public PracticeBotEntity(PracticeBot plugin, int botNumber, String kitName, AreaManager.PracticeArea area) {
+    public PracticeBotEntity(PracticeBot plugin, String kitName, AreaManager.PracticeArea area) {
         this.plugin = plugin;
         this.kitName = kitName;
         this.area = area;
-        String nameFormat = plugin.getConfigManager().getString("bot-name-format", "Practice Bot {number}");
-        this.name = nameFormat.replace("{number}", String.valueOf(botNumber));
+        // Simple name without numbers
+        this.name = plugin.getConfigManager().getString("bot-name-format", "Practice Bot");
     }
 
     public boolean spawn() {
@@ -49,7 +49,7 @@ public class PracticeBotEntity {
             this.npc = registry.createNPC(EntityType.PLAYER, ColorUtils.stripColor(name));
             this.npc.setProtected(false);
 
-            // --- NEW: Add our custom trait to "tag" this NPC ---
+            // Add our custom trait to "tag" this NPC so we can identify it later
             this.npc.getOrAddTrait(PracticeBotTrait.class);
 
             npc.spawn(spawnLoc);
@@ -71,6 +71,7 @@ public class PracticeBotEntity {
 
             return true;
         } catch (Exception e) {
+            plugin.getLogger().severe("Error spawning bot: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
@@ -95,17 +96,29 @@ public class PracticeBotEntity {
         plugin.getBotManager().removeBot(this);
 
         if (npc != null) {
-            // We destroy the NPC on death, and the AreaManager will create a completely new one.
-            // This is the cleanest way to ensure no state is carried over.
-            npc.destroy();
+            try {
+                if (npc.isSpawned()) {
+                    npc.despawn();
+                }
+                npc.destroy();
+            } catch (Exception e) {
+                plugin.getLogger().warning("Error destroying bot on death: " + e.getMessage());
+            }
+            npc = null;
         }
     }
 
     public void despawn() {
         stopAI();
         if (npc != null) {
-            if (npc.isSpawned()) npc.despawn();
-            npc.destroy();
+            try {
+                if (npc.isSpawned()) {
+                    npc.despawn();
+                }
+                npc.destroy();
+            } catch (Exception e) {
+                plugin.getLogger().warning("Error despawning bot: " + e.getMessage());
+            }
             npc = null;
         }
     }
@@ -125,8 +138,14 @@ public class PracticeBotEntity {
     }
 
     private void stopAI() {
-        if (aiTask != null) aiTask.cancel();
-        if (hologramTask != null) hologramTask.cancel();
+        if (aiTask != null) {
+            aiTask.cancel();
+            aiTask = null;
+        }
+        if (hologramTask != null) {
+            hologramTask.cancel();
+            hologramTask = null;
+        }
     }
 
     private void startHologram() {
@@ -169,6 +188,21 @@ public class PracticeBotEntity {
     }
 
     public String getName() { return name; }
+    public String getKitName() { return kitName; }
     public NPC getNpc() { return npc; }
     public BotAI getAi() { return ai; }
+
+    public double getHealth() {
+        if (npc != null && npc.isSpawned() && npc.getEntity() instanceof LivingEntity) {
+            return ((LivingEntity) npc.getEntity()).getHealth();
+        }
+        return 0.0;
+    }
+
+    public double getMaxHealth() {
+        if (npc != null && npc.isSpawned() && npc.getEntity() instanceof LivingEntity) {
+            return ((LivingEntity) npc.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+        }
+        return 20.0;
+    }
 }
