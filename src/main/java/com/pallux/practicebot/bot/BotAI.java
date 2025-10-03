@@ -7,8 +7,14 @@ import net.citizensnpcs.api.ai.Navigator;
 import net.citizensnpcs.api.npc.NPC;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.ThrownPotion;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import java.util.Optional;
@@ -26,6 +32,8 @@ public class BotAI {
     private int attackCooldown = 0;
     private int jumpCooldown = 0;
     private int retargetCooldown = 0;
+    private int rodCooldown = 0;
+    private int potionCooldown = 0;
 
     private Vector movementVector = new Vector(0, 0, 0);
     private boolean wantsToJump = false;
@@ -48,6 +56,7 @@ public class BotAI {
         Player bot = (Player) npc.getEntity();
 
         updateCooldowns();
+        checkTotemUsage(bot);
         updateTarget(bot);
 
         if (target != null) {
@@ -66,6 +75,33 @@ public class BotAI {
         if (attackCooldown > 0) attackCooldown--;
         if (jumpCooldown > 0) jumpCooldown--;
         if (retargetCooldown > 0) retargetCooldown--;
+        if (rodCooldown > 0) rodCooldown--;
+        if (potionCooldown > 0) potionCooldown--;
+    }
+
+    private void checkTotemUsage(Player bot) {
+        // Check if bot is low on health and has a totem
+        double healthPercent = bot.getHealth() / bot.getMaxHealth();
+
+        if (healthPercent < 0.3) { // Below 30% health
+            // Check if totem is in offhand
+            ItemStack offhand = bot.getInventory().getItemInOffHand();
+            if (offhand.getType() == Material.TOTEM_OF_UNDYING) {
+                return; // Already equipped
+            }
+
+            // Search inventory for totem
+            for (int i = 0; i < bot.getInventory().getSize(); i++) {
+                ItemStack item = bot.getInventory().getItem(i);
+                if (item != null && item.getType() == Material.TOTEM_OF_UNDYING) {
+                    // Swap totem to offhand
+                    ItemStack currentOffhand = bot.getInventory().getItemInOffHand();
+                    bot.getInventory().setItemInOffHand(item.clone());
+                    bot.getInventory().setItem(i, currentOffhand);
+                    break;
+                }
+            }
+        }
     }
 
     private void executeWanderingLogic(Player bot) {
@@ -96,6 +132,25 @@ public class BotAI {
         double attackRange = plugin.getConfigManager().getDouble("bot-behavior.attack-range", 3.5);
         double distance = getDistanceToTarget(bot);
 
+        // Try fishing rod first (if available and in range)
+        if (rodCooldown <= 0 && distance > 3.0 && distance < 10.0) {
+            if (tryFishingRod(bot)) {
+                rodCooldown = plugin.getConfigManager().getInt("combat.rod-cooldown", 60); // 3 seconds
+            }
+        }
+
+        // Try throwing potions (if low health or at medium range)
+        if (potionCooldown <= 0 && distance > 2.0 && distance < 15.0) {
+            double healthPercent = bot.getHealth() / bot.getMaxHealth();
+            double potionChance = plugin.getConfigManager().getDouble("combat.potion-chance", 0.3);
+
+            if (healthPercent < 0.5 || (random.nextDouble() < potionChance && distance > 5.0)) {
+                if (tryThrowPotion(bot)) {
+                    potionCooldown = plugin.getConfigManager().getInt("combat.potion-cooldown", 100); // 5 seconds
+                }
+            }
+        }
+
         if (distance > attackRange) { // Chasing
             movementVector.add(directionToTarget);
         } else { // Melee Range
@@ -110,6 +165,90 @@ public class BotAI {
             bot.swingMainHand();
             attackCooldown = plugin.getConfigManager().getInt("combat.attack-delay", 12);
         }
+    }
+
+    private boolean tryFishingRod(Player bot) {
+        // Find fishing rod in inventory
+        ItemStack rod = findItemInInventory(bot, Material.FISHING_ROD);
+        if (rod == null) return false;
+
+        // Switch to rod temporarily
+        ItemStack currentItem = bot.getInventory().getItemInMainHand();
+        int rodSlot = bot.getInventory().first(Material.FISHING_ROD);
+
+        if (rodSlot == -1) return false;
+
+        // Cast the rod toward target
+        bot.getInventory().setItemInMainHand(rod);
+
+        // Launch fishing hook
+        Vector direction = target.getLocation().toVector().subtract(bot.getLocation().toVector()).normalize();
+        bot.launchProjectile(org.bukkit.entity.FishHook.class, direction.multiply(1.5));
+
+        // Switch back to weapon after a short delay
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            if (bot.isValid() && npc.isSpawned()) {
+                bot.getInventory().setItemInMainHand(currentItem);
+            }
+        }, 10L); // Switch back after 0.5 seconds
+
+        return true;
+    }
+
+    private boolean tryThrowPotion(Player bot) {
+        // Find splash potion in inventory
+        ItemStack potion = findSplashPotion(bot);
+        if (potion == null) return false;
+
+        // Calculate throw direction (aim slightly upward for arc)
+        Vector direction = target.getEyeLocation().toVector()
+                .subtract(bot.getEyeLocation().toVector())
+                .normalize()
+                .multiply(0.75);
+        direction.setY(direction.getY() + 0.2); // Add upward arc
+
+        // Throw the potion
+        ThrownPotion thrownPotion = bot.launchProjectile(ThrownPotion.class, direction);
+        thrownPotion.setItem(potion.clone());
+
+        // Remove one potion from inventory
+        potion.setAmount(potion.getAmount() - 1);
+        if (potion.getAmount() <= 0) {
+            int slot = findPotionSlot(bot);
+            if (slot != -1) {
+                bot.getInventory().setItem(slot, null);
+            }
+        }
+
+        return true;
+    }
+
+    private ItemStack findItemInInventory(Player bot, Material material) {
+        for (ItemStack item : bot.getInventory().getContents()) {
+            if (item != null && item.getType() == material) {
+                return item;
+            }
+        }
+        return null;
+    }
+
+    private ItemStack findSplashPotion(Player bot) {
+        for (ItemStack item : bot.getInventory().getContents()) {
+            if (item != null && (item.getType() == Material.SPLASH_POTION || item.getType() == Material.LINGERING_POTION)) {
+                return item;
+            }
+        }
+        return null;
+    }
+
+    private int findPotionSlot(Player bot) {
+        for (int i = 0; i < bot.getInventory().getSize(); i++) {
+            ItemStack item = bot.getInventory().getItem(i);
+            if (item != null && (item.getType() == Material.SPLASH_POTION || item.getType() == Material.LINGERING_POTION)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     private void applyMovement(Player bot) {
@@ -149,7 +288,6 @@ public class BotAI {
             target = null;
         }
 
-        // --- NEW PLAYER-FIRST LOGIC ---
         // Step 1: ALWAYS search for an available player target.
         Optional<Player> bestPlayerTarget = findValidPlayerTarget(bot);
 
@@ -172,7 +310,6 @@ public class BotAI {
             findValidBotTarget(bot).ifPresent(this::forceTarget);
         }
     }
-
 
     private Optional<Player> findValidPlayerTarget(Player bot) {
         double detectionRange = plugin.getConfigManager().getDouble("bot-behavior.detection-range", 32.0);

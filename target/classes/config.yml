@@ -24,6 +24,16 @@ combat:
   # The maximum number of bots that can target a single human player at the same time.
   max-player-attackers: 2
 
+  # Fishing Rod Settings
+  # Cooldown in ticks between fishing rod uses (60 = 3 seconds)
+  rod-cooldown: 60
+
+  # Potion Settings
+  # Chance for bot to throw a potion when in range (0.0 to 1.0)
+  potion-chance: 0.3
+  # Cooldown in ticks between potion throws (100 = 5 seconds)
+  potion-cooldown: 100
+
   # Bot vs. Bot Combat Settings
   bot-vs-bot:
     # If true, bots will fight each other if no players are available to target.

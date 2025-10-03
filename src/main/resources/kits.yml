@@ -27,6 +27,12 @@ kits:
           - DAMAGE_ALL:1 # Sharpness 1
       1:
         material: BOW
+      2:
+        material: FISHING_ROD
+      3:
+        material: SPLASH_POTION
+        amount: 3
+        potion-type: INSTANT_HEAL
 
   # Standard diamond PvP kit.
   diamond:
@@ -56,6 +62,18 @@ kits:
         material: BOW
         enchantments:
           - ARROW_DAMAGE:1 # Power 1
+      2:
+        material: FISHING_ROD
+      3:
+        material: SPLASH_POTION
+        amount: 4
+        potion-type: INSTANT_HEAL_II
+      4:
+        material: SPLASH_POTION
+        amount: 2
+        potion-type: SPEED
+      5:
+        material: TOTEM_OF_UNDYING
 
   # A powerful netherite kit for the strongest bots.
   netherite:
@@ -81,5 +99,22 @@ kits:
         material: NETHERITE_SWORD
         enchantments:
           - DAMAGE_ALL:5 # Sharpness 5
+      1:
+        material: FISHING_ROD
+      2:
+        material: SPLASH_POTION
+        amount: 6
+        potion-type: INSTANT_HEAL_II
+      3:
+        material: SPLASH_POTION
+        amount: 3
+        potion-type: SPEED_II
+      4:
+        material: SPLASH_POTION
+        amount: 2
+        potion-type: STRENGTH
+      5:
+        material: TOTEM_OF_UNDYING
+        amount: 2
     offhand:
-      material: SHIELD
+      material: TOTEM_OF_UNDYING
