@@ -2,11 +2,12 @@
 #                       PracticeBot Configuration                     #
 # =================================================================== #
 
-# General plugin settings
+# General plugin settings (Please read comments carefully!)
 settings:
   prefix: "<gradient:#FF6B6B:#4ECDC4>PracticeBot</gradient> <gray>»</gray> "
 
 # --- Bot AI and Behavior ---
+# Do NOT go below a Respawn delay of 5 seconds!
 bot-behavior:
   # Time in seconds before a killed bot respawns in its area.
   respawn-delay: 5
@@ -16,6 +17,7 @@ bot-behavior:
   attack-range: 3.5
 
 # --- Combat Settings ---
+# These standard values are pretty good, do not change if you are not sure!
 combat:
   # Delay between bot attacks (in ticks, 20 ticks = 1 second). Lower is faster.
   attack-delay: 12
@@ -39,6 +41,7 @@ combat:
   trident-cooldown: 80
 
   # Bot vs. Bot Combat Settings
+  # Standard Settings should be kept! (Change on your own risk!)
   bot-vs-bot:
     # If true, bots will fight each other if no players are available to target.
     enabled: true
@@ -53,6 +56,7 @@ movement:
   melee-speed: 1.2
 
 # --- Performance Settings ---
+# If you are not sure about these settings, don't change them!
 performance:
   # How often to update the bot's AI (in ticks). 1 is the most responsive.
   ai-tick-rate: 1
@@ -64,11 +68,12 @@ performance:
 area-settings:
   selection-tool: STONE_AXE
 
-# Bot name without numbers - just "Practice Bot"
+# Bot names - !!BETA FEATURE!!
 bot-name-format: "Practice Bot"
 
+# Needs a Hologram Plugin - !!BETA FEATURE!!
 hologram:
-  enabled: true
+  enabled: false
   format: "<gold>{name}</gold>\n<red>❤ {health}/{max_health}</red>"
 
 # This section is managed automatically by the /pbarea command. Do not edit manually.

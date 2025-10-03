@@ -6,7 +6,7 @@
 
     <groupId>com.pallux</groupId>
     <artifactId>PracticeBot</artifactId>
-    <version>1.0.0</version>
+    <version>1.6</version>
     <packaging>jar</packaging>
 
     <name>PracticeBot</name>

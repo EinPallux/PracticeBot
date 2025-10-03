@@ -1,7 +1,8 @@
 # =================================================================== #
 #                        PracticeBot Kits                             #
 # =================================================================== #
-# A huge variety of kits for different combat styles! (You can always add more or remove kits)
+# A huge variety of kits for different combat styles!
+# You can add and remove as many kits as you want.
 # Bots will randomly choose from these kits.
 
 kits:

@@ -1,9 +1,9 @@
 name: PracticeBot
-version: '2.0.0'
+version: '1.6'
 main: com.pallux.practicebot.PracticeBot
 api-version: '1.17'
 author: Pallux
-description: AI PvP Bots for Practice
+description: AI PvP Bots for Practice (Made for Practice Setup from Pallux)
 depend: [Citizens]
 
 commands:
