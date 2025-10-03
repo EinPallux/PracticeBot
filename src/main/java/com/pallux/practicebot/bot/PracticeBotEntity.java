@@ -9,191 +9,109 @@ import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.npc.NPCRegistry;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-/**
- * Represents a practice bot entity
- */
 public class PracticeBotEntity {
 
     private final PracticeBot plugin;
     private final String name;
     private final String kitName;
     private final AreaManager.PracticeArea area;
-    private final int botNumber;
 
     private NPC npc;
     private BotAI ai;
     private BukkitTask aiTask;
     private BukkitTask hologramTask;
-    private boolean isDead;
-    private Location deathLocation;
-
-    private double healthMultiplier;
-    private double damageMultiplier;
+    private boolean isDead = false;
 
     public PracticeBotEntity(PracticeBot plugin, int botNumber, String kitName, AreaManager.PracticeArea area) {
         this.plugin = plugin;
-        this.botNumber = botNumber;
         this.kitName = kitName;
         this.area = area;
-        this.isDead = false;
-        this.healthMultiplier = 1.0;
-        this.damageMultiplier = 1.0;
-
-        // Generate name
-        String nameFormat = plugin.getConfigManager().getString("bot-name-format", "<gradient:#FF6B6B:#4ECDC4>Practice Bot {number}</gradient>");
+        String nameFormat = plugin.getConfigManager().getString("bot-name-format", "Practice Bot {number}");
         this.name = nameFormat.replace("{number}", String.valueOf(botNumber));
     }
 
-    /**
-     * Set difficulty multipliers
-     */
-    public void setMultipliers(double health, double damage) {
-        this.healthMultiplier = health;
-        this.damageMultiplier = damage;
-    }
-
-    /**
-     * Spawn the bot
-     */
     public boolean spawn() {
-        if (npc != null && npc.isSpawned()) {
-            return false;
-        }
-
         try {
-            // Get spawn location
-            Location spawnLoc = area.getRandomLocation();
-            spawnLoc = findSafeLocation(spawnLoc);
-
+            Location spawnLoc = findSafeLocation(area.getRandomLocation());
             if (spawnLoc == null) {
                 plugin.getLogger().warning("Could not find safe spawn location for bot!");
                 return false;
             }
 
-            // Create NPC
             NPCRegistry registry = CitizensAPI.getNPCRegistry();
-            npc = registry.createNPC(EntityType.PLAYER, ColorUtils.stripColor(name));
+            this.npc = registry.createNPC(EntityType.PLAYER, ColorUtils.stripColor(name));
+            this.npc.setProtected(false);
+
+            // --- NEW: Add our custom trait to "tag" this NPC ---
+            this.npc.getOrAddTrait(PracticeBotTrait.class);
+
             npc.spawn(spawnLoc);
 
-            // Get entity
-            if (!(npc.getEntity() instanceof Player)) {
-                plugin.getLogger().warning("Bot entity is not a player!");
-                return false;
-            }
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    if (npc == null || !npc.isSpawned()) return;
+                    if (!(npc.getEntity() instanceof Player)) return;
 
-            Player botPlayer = (Player) npc.getEntity();
+                    Player botPlayer = (Player) npc.getEntity();
+                    applySettings(botPlayer);
 
-            // Apply kit
-            KitManager.Kit kit = plugin.getKitManager().getKit(kitName);
-            if (kit != null) {
-                kit.apply(botPlayer);
-            }
+                    ai = new BotAI(plugin, npc, kitName, area);
+                    startAI();
+                    startHologram();
+                }
+            }.runTaskLater(plugin, 1L);
 
-            // Set display name
-            Component displayName = ColorUtils.colorize(name);
-            botPlayer.displayName(displayName);
-            botPlayer.customName(displayName);
-            botPlayer.setCustomNameVisible(true);
-
-            // Apply health multiplier
-            double maxHealth = botPlayer.getMaxHealth() * healthMultiplier;
-            botPlayer.setMaxHealth(maxHealth);
-            botPlayer.setHealth(maxHealth);
-
-            // Initialize AI
-            ai = new BotAI(plugin, npc, kitName, area);
-
-            // Apply AI skill modifiers from bot profile if exists
-            applyProfileSkills();
-
-            // Start AI task
-            startAI();
-
-            // Start hologram task
-            if (plugin.getConfigManager().getBoolean("hologram.enabled", true)) {
-                startHologram();
-            }
-
-            plugin.getLogger().info("Spawned bot: " + name + " with kit: " + kitName);
             return true;
-
         } catch (Exception e) {
-            plugin.getLogger().severe("Failed to spawn bot: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
     }
 
-    /**
-     * Apply profile skills to AI
-     */
-    private void applyProfileSkills() {
-        // Try to get profile from bots.yml
-        String profilePath = "behavior-modifiers." + getProfileName() + ".";
+    private void applySettings(Player botPlayer) {
+        KitManager.Kit kit = plugin.getKitManager().getKit(kitName);
+        if (kit != null) kit.apply(botPlayer);
 
-        double combo = plugin.getConfigManager().getBotsConfig().getDouble(profilePath + "combo-chance", 0.6);
-        double strafe = plugin.getConfigManager().getBotsConfig().getDouble(profilePath + "strafe-chance", 0.7);
-        double critical = plugin.getConfigManager().getBotsConfig().getDouble(profilePath + "critical-chance", 0.4);
-        double block = plugin.getConfigManager().getBotsConfig().getDouble(profilePath + "block-chance", 0.35);
-        double rod = plugin.getConfigManager().getBotsConfig().getDouble(profilePath + "rod-chance", 0.4);
-        double bow = plugin.getConfigManager().getBotsConfig().getDouble(profilePath + "bow-accuracy", 0.8);
+        Component displayName = ColorUtils.colorize(name);
+        botPlayer.customName(displayName);
+        botPlayer.setCustomNameVisible(true);
 
-        ai.setSkillModifiers(combo, strafe, critical, block, rod, bow);
+        botPlayer.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20.0);
+        botPlayer.setHealth(20.0);
     }
 
-    /**
-     * Get profile name based on kit
-     */
-    private String getProfileName() {
-        // Map kit to profile
-        if (kitName.equalsIgnoreCase("iron")) return "easy";
-        if (kitName.equalsIgnoreCase("netherite")) return "hard";
-        if (kitName.equalsIgnoreCase("crystal")) return "crystal";
-        if (kitName.equalsIgnoreCase("uhc")) return "uhc";
-        return "medium";
-    }
+    public void onDeath() {
+        if (isDead) return;
+        this.isDead = true;
+        stopAI();
+        plugin.getBotManager().removeBot(this);
 
-    /**
-     * Find safe location (on ground)
-     */
-    private Location findSafeLocation(Location start) {
-        Location loc = start.clone();
-
-        // Check if current location is safe
-        if (loc.getBlock().getType().isSolid()) {
-            // Move up
-            for (int i = 0; i < 10; i++) {
-                loc.add(0, 1, 0);
-                if (!loc.getBlock().getType().isSolid()) {
-                    break;
-                }
-            }
-        } else {
-            // Move down to find ground
-            for (int i = 0; i < 10; i++) {
-                loc.subtract(0, 1, 0);
-                if (loc.getBlock().getType().isSolid()) {
-                    loc.add(0, 1, 0);
-                    break;
-                }
-            }
+        if (npc != null) {
+            // We destroy the NPC on death, and the AreaManager will create a completely new one.
+            // This is the cleanest way to ensure no state is carried over.
+            npc.destroy();
         }
-
-        return loc;
     }
 
-    /**
-     * Start AI
-     */
-    private void startAI() {
-        int tickRate = plugin.getConfigManager().getInt("performance.ai-tick-rate", 1);
+    public void despawn() {
+        stopAI();
+        if (npc != null) {
+            if (npc.isSpawned()) npc.despawn();
+            npc.destroy();
+            npc = null;
+        }
+    }
 
+    private void startAI() {
+        stopAI();
         aiTask = new BukkitRunnable() {
             @Override
             public void run() {
@@ -201,16 +119,18 @@ public class PracticeBotEntity {
                     cancel();
                     return;
                 }
-
                 ai.tick();
             }
-        }.runTaskTimer(plugin, 0L, tickRate);
+        }.runTaskTimer(plugin, 2L, 1L);
     }
 
-    /**
-     * Start hologram updates
-     */
+    private void stopAI() {
+        if (aiTask != null) aiTask.cancel();
+        if (hologramTask != null) hologramTask.cancel();
+    }
+
     private void startHologram() {
+        if (!plugin.getConfigManager().getBoolean("hologram.enabled", true)) return;
         hologramTask = new BukkitRunnable() {
             @Override
             public void run() {
@@ -218,152 +138,37 @@ public class PracticeBotEntity {
                     cancel();
                     return;
                 }
-
                 updateHologram();
             }
-        }.runTaskTimer(plugin, 0L, 20L); // Update every second
+        }.runTaskTimer(plugin, 0L, 20L);
     }
 
-    /**
-     * Update hologram display
-     */
     private void updateHologram() {
         if (!(npc.getEntity() instanceof LivingEntity)) return;
-
         LivingEntity entity = (LivingEntity) npc.getEntity();
-
-        if (plugin.getConfigManager().getBoolean("hologram.show-health", true)) {
-            String format = plugin.getConfigManager().getString("hologram.format", "<gold>{name}</gold>\n<red>❤ {health}</red>");
-
-            String health = String.format("%.1f", entity.getHealth());
-            String hologramText = format
-                    .replace("{name}", ColorUtils.stripColor(name))
-                    .replace("{health}", health);
-
-            Component hologram = ColorUtils.colorize(hologramText);
-            entity.customName(hologram);
-        }
+        String format = plugin.getConfigManager().getString("hologram.format", "&6{name}\n&c❤ {health}/{max_health}");
+        String health = String.format("%.1f", entity.getHealth());
+        String maxHealth = String.format("%.1f", entity.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+        String hologramText = format.replace("{name}", name).replace("{health}", health).replace("{max_health}", maxHealth);
+        entity.customName(ColorUtils.colorize(hologramText));
     }
 
-    /**
-     * Handle bot death
-     */
-    public void onDeath() {
-        if (isDead) return;
-
-        isDead = true;
-        deathLocation = npc.getStoredLocation();
-
-        // Stop AI
-        if (aiTask != null) {
-            aiTask.cancel();
-        }
-
-        if (hologramTask != null) {
-            hologramTask.cancel();
-        }
-
-        // Schedule respawn
-        int respawnDelay = plugin.getConfigManager().getInt("bot-behavior.respawn-delay", 5) * 20;
-
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                respawn();
+    private Location findSafeLocation(Location start) {
+        if (start == null) return null;
+        Location loc = start.clone();
+        for (int y = loc.getBlockY(); y < loc.getWorld().getMaxHeight(); y++) {
+            loc.setY(y);
+            if (!loc.getBlock().getType().isSolid() && !loc.clone().add(0,1,0).getBlock().getType().isSolid()) {
+                Location below = loc.clone().subtract(0, 1, 0);
+                if (below.getBlock().getType().isSolid()) {
+                    return loc;
+                }
             }
-        }.runTaskLater(plugin, respawnDelay);
-    }
-
-    /**
-     * Respawn the bot
-     */
-    public void respawn() {
-        isDead = false;
-
-        if (npc != null) {
-            npc.despawn();
         }
-
-        spawn();
+        return null;
     }
 
-    /**
-     * Despawn the bot
-     */
-    public void despawn() {
-        if (aiTask != null) {
-            aiTask.cancel();
-        }
-
-        if (hologramTask != null) {
-            hologramTask.cancel();
-        }
-
-        if (npc != null) {
-            npc.destroy();
-            npc = null;
-        }
-    }
-
-    /**
-     * Check if bot is spawned
-     */
-    public boolean isSpawned() {
-        return npc != null && npc.isSpawned() && !isDead;
-    }
-
-    /**
-     * Get bot name
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Get kit name
-     */
-    public String getKitName() {
-        return kitName;
-    }
-
-    /**
-     * Get bot number
-     */
-    public int getBotNumber() {
-        return botNumber;
-    }
-
-    /**
-     * Get NPC
-     */
-    public NPC getNpc() {
-        return npc;
-    }
-
-    /**
-     * Get AI
-     */
-    public BotAI getAi() {
-        return ai;
-    }
-
-    /**
-     * Get health
-     */
-    public double getHealth() {
-        if (npc == null || !npc.isSpawned()) return 0;
-        if (!(npc.getEntity() instanceof LivingEntity)) return 0;
-
-        return ((LivingEntity) npc.getEntity()).getHealth();
-    }
-
-    /**
-     * Get max health
-     */
-    public double getMaxHealth() {
-        if (npc == null || !npc.isSpawned()) return 0;
-        if (!(npc.getEntity() instanceof LivingEntity)) return 0;
-
-        return ((LivingEntity) npc.getEntity()).getMaxHealth();
-    }
+    public String getName() { return name; }
+    public NPC getNpc() { return npc; }
+    public BotAI getAi() { return ai; }
 }

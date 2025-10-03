@@ -1,4 +1,5 @@
 com\pallux\practicebot\bot\PracticeBotEntity$1.class
+com\pallux\practicebot\bot\PracticeBotTrait.class
 com\pallux\practicebot\managers\KitManager.class
 com\pallux\practicebot\PracticeBot.class
 com\pallux\practicebot\commands\AreaCommand.class
@@ -9,9 +10,10 @@ com\pallux\practicebot\bot\PracticeBotEntity$2.class
 com\pallux\practicebot\utils\MessageUtils.class
 com\pallux\practicebot\managers\ConfigManager.class
 com\pallux\practicebot\bot\PracticeBotEntity.class
+com\pallux\practicebot\managers\AreaManager$PracticeArea$1.class
 com\pallux\practicebot\managers\AreaManager.class
 com\pallux\practicebot\bot\BotAI.class
 com\pallux\practicebot\bot\PracticeBotEntity$3.class
 com\pallux\practicebot\utils\MessageUtils$PlaceholderBuilder.class
-com\pallux\practicebot\commands\PBCommand.class
+com\pallux\practicebot\managers\AreaManager$1.class
 com\pallux\practicebot\utils\ColorUtils.class

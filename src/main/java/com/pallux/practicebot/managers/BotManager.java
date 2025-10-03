@@ -2,7 +2,6 @@ package com.pallux.practicebot.managers;
 
 import com.pallux.practicebot.PracticeBot;
 import com.pallux.practicebot.bot.PracticeBotEntity;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -10,293 +9,107 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Manages all practice bots
- */
 public class BotManager implements Listener {
 
     private final PracticeBot plugin;
-    private final Map<String, PracticeBotEntity> activeBots;
-    private int botCounter;
+    private final Set<PracticeBotEntity> allBots = Collections.synchronizedSet(new HashSet<>());
+    private final Map<UUID, Set<UUID>> targeterMap = new ConcurrentHashMap<>();
 
     public BotManager(PracticeBot plugin) {
         this.plugin = plugin;
-        this.activeBots = new ConcurrentHashMap<>();
-        this.botCounter = 0;
-
-        // Register events
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
-    /**
-     * Spawn bots
-     */
-    public int spawnBots(int amount, String kitName, AreaManager.PracticeArea area) {
-        // Check max bots limit
-        int maxBots = plugin.getConfigManager().getInt("settings.max-bots", 50);
-        int currentBots = activeBots.size();
-
-        if (currentBots >= maxBots) {
-            return 0;
-        }
-
-        // Adjust amount if it would exceed limit
-        amount = Math.min(amount, maxBots - currentBots);
-
-        int spawned = 0;
-
-        for (int i = 0; i < amount; i++) {
-            botCounter++;
-            String botName = "Practice Bot " + botCounter;
-
-            PracticeBotEntity bot = new PracticeBotEntity(plugin, botCounter, kitName, area);
-
-            // Apply difficulty modifiers from profile
-            applyProfileModifiers(bot, kitName);
-
-            if (bot.spawn()) {
-                activeBots.put(botName, bot);
-                spawned++;
-            }
-        }
-
-        return spawned;
+    public void addBot(PracticeBotEntity bot) {
+        allBots.add(bot);
     }
 
-    /**
-     * Apply profile modifiers to bot
-     */
-    private void applyProfileModifiers(PracticeBotEntity bot, String kitName) {
-        ConfigurationSection profilesSection = plugin.getConfigManager().getBotsConfig().getConfigurationSection("profiles");
-
-        if (profilesSection == null) {
-            return;
-        }
-
-        // Find matching profile
-        String profileName = null;
-        for (String profile : profilesSection.getKeys(false)) {
-            String profileKit = profilesSection.getString(profile + ".kit");
-            if (kitName.equalsIgnoreCase(profileKit)) {
-                profileName = profile;
-                break;
-            }
-        }
-
-        if (profileName == null) {
-            // Use default profile
-            profileName = plugin.getConfigManager().getBotsConfig().getString("default-profile", "medium");
-        }
-
-        String path = "profiles." + profileName + ".";
-        double healthMult = plugin.getConfigManager().getBotsConfig().getDouble(path + "health-multiplier", 1.0);
-        double damageMult = plugin.getConfigManager().getBotsConfig().getDouble(path + "damage-multiplier", 1.0);
-
-        bot.setMultipliers(healthMult, damageMult);
+    public void removeBot(PracticeBotEntity bot) {
+        if (bot == null || bot.getNpc() == null) return;
+        allBots.remove(bot);
+        releaseTarget(bot.getNpc().getUniqueId());
     }
 
-    /**
-     * Despawn a specific bot
-     */
-    public boolean despawnBot(String botName) {
-        PracticeBotEntity bot = activeBots.get(botName);
-
-        if (bot == null) {
-            // Try to find by partial name
-            for (Map.Entry<String, PracticeBotEntity> entry : activeBots.entrySet()) {
-                if (entry.getKey().toLowerCase().contains(botName.toLowerCase())) {
-                    bot = entry.getValue();
-                    botName = entry.getKey();
-                    break;
-                }
-            }
-        }
-
-        if (bot != null) {
-            bot.despawn();
-            activeBots.remove(botName);
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Despawn all bots
-     */
-    public int despawnAll() {
-        int count = activeBots.size();
-
-        for (PracticeBotEntity bot : activeBots.values()) {
-            bot.despawn();
-        }
-
-        activeBots.clear();
-        return count;
-    }
-
-    /**
-     * Get a bot by name
-     */
-    public PracticeBotEntity getBot(String name) {
-        return activeBots.get(name);
-    }
-
-    /**
-     * Get all active bots
-     */
-    public Collection<PracticeBotEntity> getActiveBots() {
-        return activeBots.values();
-    }
-
-    /**
-     * Get number of active bots
-     */
-    public int getActiveBotCount() {
-        return activeBots.size();
-    }
-
-    /**
-     * Get bot names
-     */
-    public Set<String> getBotNames() {
-        return activeBots.keySet();
-    }
-
-    /**
-     * Check if entity is a bot
-     */
-    public boolean isBot(LivingEntity entity) {
-        for (PracticeBotEntity bot : activeBots.values()) {
-            if (bot.getNpc() != null && bot.getNpc().getEntity() != null) {
-                if (bot.getNpc().getEntity().equals(entity)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Get bot from entity
-     */
     public PracticeBotEntity getBotFromEntity(LivingEntity entity) {
-        for (PracticeBotEntity bot : activeBots.values()) {
-            if (bot.getNpc() != null && bot.getNpc().getEntity() != null) {
-                if (bot.getNpc().getEntity().equals(entity)) {
-                    return bot;
-                }
+        if (entity == null || !entity.hasMetadata("NPC")) return null;
+        for (PracticeBotEntity bot : allBots) {
+            if (bot.getNpc() != null && bot.getNpc().getEntity() != null && bot.getNpc().getEntity().getUniqueId().equals(entity.getUniqueId())) {
+                return bot;
             }
         }
         return null;
     }
 
-    /**
-     * Handle entity death
-     */
-    @EventHandler(priority = EventPriority.HIGH)
+    public Set<PracticeBotEntity> getAllBots() {
+        return allBots;
+    }
+
+    public boolean isTargetSlotAvailable(LivingEntity target) {
+        int maxAttackers = (target instanceof Player)
+                ? plugin.getConfigManager().getInt("combat.max-player-attackers", 2)
+                : plugin.getConfigManager().getInt("combat.bot-vs-bot.max-bot-attackers", 1);
+
+        return targeterMap.getOrDefault(target.getUniqueId(), Collections.emptySet()).size() < maxAttackers;
+    }
+
+    public void claimTarget(UUID attackerId, LivingEntity newTarget) {
+        releaseTarget(attackerId);
+
+        if (newTarget != null) {
+            targeterMap.computeIfAbsent(newTarget.getUniqueId(), k -> Collections.synchronizedSet(new HashSet<>())).add(attackerId);
+        }
+    }
+
+    public void releaseTarget(UUID uniqueId) {
+        targeterMap.forEach((targetUUID, attackers) -> attackers.remove(uniqueId));
+        targeterMap.remove(uniqueId);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onBotDamaged(EntityDamageByEntityEvent event) {
+        if (event.isCancelled() || !(event.getEntity() instanceof LivingEntity)) return;
+
+        PracticeBotEntity bot = getBotFromEntity((LivingEntity) event.getEntity());
+        if (bot == null) return;
+
+        if (!(event.getDamager() instanceof LivingEntity attacker)) return;
+
+        if (bot.getAi().getTarget() != null && bot.getAi().getTarget().equals(attacker)) {
+            return;
+        }
+
+        bot.getAi().forceTarget(attacker);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityDeath(EntityDeathEvent event) {
-        LivingEntity entity = event.getEntity();
+        LivingEntity victim = event.getEntity();
+        Player killer = victim.getKiller();
 
-        if (!isBot(entity)) {
-            return;
-        }
+        PracticeBotEntity killedBot = getBotFromEntity(victim);
 
-        PracticeBotEntity bot = getBotFromEntity(entity);
-        if (bot == null) {
-            return;
-        }
+        if (killedBot != null) {
+            event.getDrops().clear();
+            event.setDroppedExp(0);
 
-        // Clear drops
-        event.getDrops().clear();
-        event.setDroppedExp(0);
-
-        // Handle respawn
-        bot.onDeath();
-
-        // Send message to killer
-        Player killer = entity.getKiller();
-        if (killer != null) {
-            Map<String, String> placeholders = new HashMap<>();
-            placeholders.put("bot", bot.getName());
-            plugin.getMessageUtils().sendMessage(killer, "bots.bot-killed", placeholders);
-        }
-    }
-
-    /**
-     * Handle entity damage by entity (for damage multipliers)
-     */
-    @EventHandler(priority = EventPriority.NORMAL)
-    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
-        // Check if damager is a bot
-        if (event.getDamager() instanceof LivingEntity) {
-            LivingEntity damager = (LivingEntity) event.getDamager();
-
-            if (isBot(damager)) {
-                PracticeBotEntity bot = getBotFromEntity(damager);
-                if (bot != null) {
-                    // Apply damage multiplier
-                    double originalDamage = event.getDamage();
-                    double multiplier = getProfileDamageMultiplier(bot.getKitName());
-                    event.setDamage(originalDamage * multiplier);
-                }
+            if (killer != null) {
+                plugin.getMessageUtils().sendMessage(killer, "bots.bot-killed", Map.of("bot", killedBot.getName()));
             }
+
+            killedBot.onDeath();
         }
 
-        // Check if damaged entity is a bot
-        if (event.getEntity() instanceof LivingEntity) {
-            LivingEntity damaged = (LivingEntity) event.getEntity();
-
-            if (isBot(damaged)) {
-                // Prevent bots from being knocked back too much
-                // This helps them maintain combos
-            }
-        }
+        // Clean up targeting map for the deceased entity
+        releaseTarget(victim.getUniqueId());
     }
 
-    /**
-     * Get damage multiplier from profile
-     */
-    private double getProfileDamageMultiplier(String kitName) {
-        ConfigurationSection profilesSection = plugin.getConfigManager().getBotsConfig().getConfigurationSection("profiles");
-
-        if (profilesSection == null) {
-            return 1.0;
-        }
-
-        // Find matching profile
-        for (String profile : profilesSection.getKeys(false)) {
-            String profileKit = profilesSection.getString(profile + ".kit");
-            if (kitName.equalsIgnoreCase(profileKit)) {
-                return plugin.getConfigManager().getBotsConfig().getDouble("profiles." + profile + ".damage-multiplier", 1.0);
-            }
-        }
-
-        return 1.0;
-    }
-
-    /**
-     * Cleanup all bots on disable
-     */
-    public void cleanup() {
-        despawnAll();
-    }
-
-    /**
-     * Reload bot manager
-     */
-    public void reload() {
-        // Respawn all bots with new settings
-        List<PracticeBotEntity> botsToRespawn = new ArrayList<>(activeBots.values());
-        despawnAll();
-
-        for (PracticeBotEntity oldBot : botsToRespawn) {
-            // Recreate bots with new settings
-            // Note: This is simplified, you might want to store more info to properly recreate
-        }
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        releaseTarget(event.getPlayer().getUniqueId());
     }
 }
